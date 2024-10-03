@@ -18,6 +18,12 @@ public class Deck : ScriptableObject
     public string Element;
 
 
-    public bool isActive;
-    public bool isInHand;
+    public bool isActive;           // Decides whether the card is interactable
+    public bool isUsable;           // Decides whether the card is usable
+    public bool isInHand;           // Decides whether the card is in a player's handCards
+
+    // 2
+    public bool isPickCard;	        // Choose Cards that are needed/available	// Just a confirmation step
+    // 4
+    public bool isPickTarget;	        // Show available targets and choose the amount of target as needed/available
 }

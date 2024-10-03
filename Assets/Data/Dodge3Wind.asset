@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
-  m_Name: Dodge1Fire
+  m_Name: Dodge3Wind
   m_EditorClassIdentifier: 
-  Id: 18
+  Id: 19
   Name: Dodge
   Description: Evade an Attack
-  Number: 1
+  Number: 3
   Color: Red
-  Element: Fire
+  Element: Wind
   isActive: 0
   isInHand: 0
+  isPickCard: 0
+  isPickTarget: 0

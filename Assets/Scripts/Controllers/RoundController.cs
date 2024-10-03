@@ -9,7 +9,8 @@ public class RoundController : MonoBehaviour
     [SerializeField] Player currentPlayer;
     [SerializeField] PlayerController playerController;
     [SerializeField] FunctionController functionController;
-    
+    TimingController timingController = new TimingController();
+
     GameObject playerGO;
 
     TextMeshProUGUI txbStageIndicator;
@@ -18,6 +19,8 @@ public class RoundController : MonoBehaviour
     string[] Stages = new string[7] { "Start", "Judge", "Draw", "Action", "Discard", "End", "Outside" };
     public int currentStage = 6;
     [SerializeField] private string current;
+
+    public int limit = 0;
 
     #region Mono Behaviour
     // Start is called before the first frame update
@@ -38,6 +41,8 @@ public class RoundController : MonoBehaviour
     {
         current = Stages[currentStage];
         UpdateStageIndicator(Stages[currentStage]);
+
+        getPickCard();
     }
     #endregion
 
@@ -61,6 +66,7 @@ public class RoundController : MonoBehaviour
 
     public void ScanStages()
     {
+        // Check the currentStage, then act based on it
         switch (currentStage)
         {
             case 0:
@@ -91,6 +97,7 @@ public class RoundController : MonoBehaviour
                 if (currentPlayer.isStageAction)
                 {
                     CardTiming(true);
+                    timingController.StageAction(currentPlayer);
                 }
                 break;
             case 4:
@@ -109,6 +116,7 @@ public class RoundController : MonoBehaviour
             case 5:
                 if (currentPlayer.isStageEnd)
                 {
+                    functionController.DiscardCard(currentPlayer, currentPlayer.handCard);
                     functionController.NextPlayerTurn();
                 }
                 ProceedToNextStage();
@@ -120,20 +128,31 @@ public class RoundController : MonoBehaviour
         }
     }
 
+    public void getPickCard()
+    {
+        if (currentStage == 3)
+        {
+            limit = 1;
+        }
+        else if (currentStage == 4)
+        {
+            limit = currentPlayer.handCard.Count - currentPlayer.CardLimit;
+            Debug.Log("Please discard " + limit + " cards");
+        }
+
+        if (currentPlayer.AfterPickCard.Count < limit)
+        {
+            playerController.GetPickedCard(limit);
+        }
+        playerController.SetInteractability(limit);
+    }
+
+    #region State setters
     void CardTiming(bool active)
     {
-        if (active)
-        {
-            currentPlayer.isNeedCard = true;
-            btnNextStage.interactable = true;
-            playerController.ActiveCard(true);
-        }
-        else
-        {
-            btnNextStage.interactable = false;
-            currentPlayer.isNeedCard = false;
-            playerController.ActiveCard(false);
-        }
+        currentPlayer.isNeedCard = active;
+        btnNextStage.interactable = active;
+        timingController.SetActiveAll(currentPlayer, active);
     }
 
     void UpdateStageIndicator(string currentStage)
@@ -150,4 +169,6 @@ public class RoundController : MonoBehaviour
         currentPlayer.isStageDraw = true;
         currentPlayer.isStageDiscard = true;
     }
+
+    #endregion
 }

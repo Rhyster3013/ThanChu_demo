@@ -5,8 +5,8 @@ public class Player : MonoBehaviour
 {
     // Initial stats
     public int Id { get; set; }         // Player id or number of order
-    public int MaxHP { get; set; }
-    public int HP { get; set; }         // Current HP
+    public int MaxHP { get; set; } = 4;
+    public int HP { get; set; } = 4;         // Current HP
     public string Faction { get; set; }
 
     // Player limits
@@ -26,12 +26,10 @@ public class Player : MonoBehaviour
     // Card Timing
     // 1. Can dung the do duoc Lenh hoac trong giai doan Ra the
     public bool isNeedCard { get; set; }	    // Enable usable Cards
-    // 2
-    bool isPickCard;	    // Choose Cards that are needed/available
+
     // 3
-    bool isAfterPickCard;	// Just a confirmation step
-    // 4
-    bool isPickTarget;	    // Show available targets and choose the amount of target as needed/available
+    public List<Deck> AfterPickCard; // A list of picked cards
+
     // 5
     bool isUseCard;         // Confirm Using card
 

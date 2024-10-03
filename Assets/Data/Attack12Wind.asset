@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
-  m_Name: Attack9Water
+  m_Name: Attack12Wind
   m_EditorClassIdentifier: 
-  Id: 6
+  Id: 9
   Name: Attack
   Description: Deal 1 dmg
-  Number: 9
-  Color: Black
-  Element: Water
+  Number: 12
+  Color: Red
+  Element: Wind
   isActive: 0
   isInHand: 0
+  isPickCard: 0
+  isPickTarget: 0

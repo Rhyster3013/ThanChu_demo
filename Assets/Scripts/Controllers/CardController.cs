@@ -26,9 +26,54 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         ViewCard();
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (currentCard != null)
+        {
+            if (currentCard.isUsable)
+            {
+                Debug.Log(gameObject.name + " pressed!");
+
+                if (currentCard.isPickCard == false)
+                {
+                    outline.enabled = true;
+                    currentCard.isPickCard = true;
+                }
+                else
+                {
+                    outline.enabled = false;
+                    currentCard.isPickCard = false;
+                }
+            }
+            else
+            {
+                Debug.Log(gameObject.name + " is not interactable!");
+                return;
+            }
+        }
+    }
+
+    #region UI Elements
+    // Display every UI elements based on the Deck currentCard
+    private void ViewCard()
+    {
+        if (currentCard != null && currentCard.isInHand)
+        {
+            setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
+            setName(gameObject, currentCard.Name);
+            SetCardOverlay();
+            ActiveCard();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    // Enable or Disable a card based on the isActive attribute of the card
     private void ActiveCard()
     {
-        if (currentCard.isActive)
+        if (currentCard.isActive && currentCard.isUsable)
         {
             overlayImage.SetActive(false);
         }
@@ -39,6 +84,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    // Set the card's usability
     private void SetCardOverlay()
     {
         Transform layer = gameObject.transform.Find("Active");
@@ -48,17 +94,6 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         overlayRect.anchorMax = new Vector2(1, 1); // Anchors the top right cornet
         overlayRect.offsetMin = Vector2.zero; // Set Left, Bottom to 0
         overlayRect.offsetMax = Vector2.zero; // Set Right, Top to 0
-    }
-
-    private void ViewCard()
-    {
-        if (currentCard != null && currentCard.isInHand)
-        {
-            setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
-            setName(gameObject, currentCard.Name);
-            SetCardOverlay();
-            ActiveCard();
-        }
     }
 
     // Set UI elements to the Card
@@ -100,21 +135,5 @@ public class CardController : MonoBehaviour, IPointerClickHandler
 
         cardName.text = nameInput;
     }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (currentCard != null)
-        {
-            if (currentCard.isActive)
-            {
-                Debug.Log(gameObject.name + " pressed!");
-                outline.enabled = true;
-            }
-            else
-            {
-                Debug.Log(gameObject.name + " is not interactable!");
-                return;
-            }
-        }
-    }
+    #endregion
 }

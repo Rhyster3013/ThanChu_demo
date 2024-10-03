@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
   m_Name: Attack6Earth
   m_EditorClassIdentifier: 
-  Id: 10
+  Id: 8
   Name: Attack
   Description: Deal 1 dmg
   Number: 6
@@ -20,3 +20,5 @@ MonoBehaviour:
   Element: Earth
   isActive: 0
   isInHand: 0
+  isPickCard: 0
+  isPickTarget: 0

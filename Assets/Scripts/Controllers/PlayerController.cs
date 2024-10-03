@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     //[SerializeField] Player currentPlayer;
     public Player currentPlayer;
     FunctionController functionController = new FunctionController();
+    TimingController timingController = new TimingController();
 
     GameManager gameManager;
 
@@ -38,7 +39,7 @@ public class PlayerController : MonoBehaviour
         needCard = currentPlayer.isNeedCard;
 
         // Consstantly update player's hand card limit
-        getCardLimit();
+        GetCardLimit();
     }
 
 
@@ -53,17 +54,61 @@ public class PlayerController : MonoBehaviour
         viewHandCards();
     }
 
-    public void ActiveCard(bool inTurn)
+    public void GetCardLimit()
     {
-        foreach(Deck card in currentPlayer.handCard)
+        currentPlayer.CardLimit = currentPlayer.HP;
+    }
+
+    public void GetPickedCard(int limit)
+    {
+        if (currentPlayer.handCard != null)
         {
-            functionController.CardActivate(card, inTurn);
+            foreach (Deck card in currentPlayer.handCard)
+            {
+                if (card.isPickCard 
+                    && functionController.isNotPicked(currentPlayer.AfterPickCard, card))
+                {
+                    currentPlayer.AfterPickCard.Add(card);
+                }
+                else if (card.isPickCard == false)
+                {
+                    currentPlayer.AfterPickCard.Remove(card);
+                }
+            }
         }
     }
 
-    public void getCardLimit()
+    public void SetInteractability(int limit)
     {
-        currentPlayer.CardLimit = currentPlayer.HP;
+        if (currentPlayer.AfterPickCard != null)
+        {
+            if (currentPlayer.AfterPickCard.Count == limit)
+            {
+                foreach (Deck card in currentPlayer.handCard)
+                {
+                    if (card.isPickCard == false)
+                    {
+                        card.isActive = false;
+                    }
+                }
+            }
+            else 
+            {
+                foreach (Deck deck in currentPlayer.handCard)
+                {
+                    deck.isActive = true;
+                }
+            }
+
+            for (int i = currentPlayer.AfterPickCard.Count - 1; i >= 0; i--) 
+            {
+                if (!currentPlayer.AfterPickCard[i].isPickCard)
+                {
+                    currentPlayer.AfterPickCard.RemoveAt(i);
+
+                }
+            }
+        }
     }
 
     #endregion

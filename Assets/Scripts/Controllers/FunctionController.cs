@@ -34,6 +34,10 @@ public class FunctionController : MonoBehaviour
     {
         target.Add(card);
         source.Remove(card);
+        card.isActive = false;
+        card.isInHand = false;
+        card.isUsable = false;
+        card.isPickCard = false;
     }
 
     public void DrawFromDeck(Player player, int amount)
@@ -56,15 +60,36 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void DiscardCard(Player player, List<Deck> cards)
+    public void DiscardCard(Player player, List<Deck> handCards)
     {
         DeckManager deckManager = GameObject.Find("DrawDeck").GetComponent<DeckManager>();
 
         List<Deck> discardDeck = deckManager.discardDecks;
-        foreach (Deck deck in cards)
+        for (int i = handCards.Count - 1; i >= 0; i--)
         {
-            MoveCard(discardDeck, player.handCard, deck);
+            Deck deck = handCards[i];
+            if (player.AfterPickCard.Contains(deck))
+            {
+                MoveCard(discardDeck, player.handCard, deck);
+                player.AfterPickCard.Remove(deck);
+            }
         }
+    }
+
+    public bool isNotPicked(List<Deck> cards, Deck cardToCheck)
+    {
+        bool check = true;
+
+        if (cards != null)
+        {
+            foreach (Deck deck in cards)
+            {
+                if (deck.name == cardToCheck.name)
+                    check = false;
+            }
+        }
+
+        return check;
     }
 
 
