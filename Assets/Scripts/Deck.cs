@@ -25,5 +25,5 @@ public class Deck : ScriptableObject
     // 2
     public bool isPickCard;	        // Choose Cards that are needed/available	// Just a confirmation step
     // 4
-    public bool isPickTarget;	        // Show available targets and choose the amount of target as needed/available
+    public List<Player> isPickTarget;	        // Show available targets and choose the amount of target as needed/available
 }
