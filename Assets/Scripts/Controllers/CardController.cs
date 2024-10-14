@@ -34,7 +34,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
             {
                 Debug.Log(gameObject.name + " pressed!");
 
-                if (currentCard.isPickCard == false)
+                if (currentCard.isPickCard == false && currentCard.isActive == true)
                 {
                     outline.enabled = true;
                     currentCard.isPickCard = true;
