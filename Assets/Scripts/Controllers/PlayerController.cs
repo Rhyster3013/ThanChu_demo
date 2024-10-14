@@ -56,7 +56,7 @@ public class PlayerController : MonoBehaviour
 
     public void GetCardLimit()
     {
-        currentPlayer.CardLimit = currentPlayer.HP;
+        currentPlayer.limitHand = currentPlayer.HP;
     }
 
     public void GetPickedCard(int limit)

@@ -32,7 +32,7 @@ public class DeckManager : MonoBehaviour
             deck.isActive = false;
             deck.isInHand = false;
             deck.isPickCard = false;
-            deck.isPickTarget = false;
+            deck.isPickTarget = null;
         }
     }
 

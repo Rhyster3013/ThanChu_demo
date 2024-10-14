@@ -13,7 +13,6 @@ public class FunctionController : MonoBehaviour
     public List<Player> playerList = new List<Player>();
 
     public int playerIndex = 0;
-    public TimingController timingController;
     public DeckManager deckManager;
 
     #region Gameplay
