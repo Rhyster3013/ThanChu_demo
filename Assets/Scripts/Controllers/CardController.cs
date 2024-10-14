@@ -36,12 +36,10 @@ public class CardController : MonoBehaviour, IPointerClickHandler
 
                 if (currentCard.isPickCard == false && currentCard.isActive == true)
                 {
-                    outline.enabled = true;
                     currentCard.isPickCard = true;
                 }
                 else
                 {
-                    outline.enabled = false;
                     currentCard.isPickCard = false;
                 }
             }
@@ -63,6 +61,11 @@ public class CardController : MonoBehaviour, IPointerClickHandler
             setName(gameObject, currentCard.Name);
             SetCardOverlay();
             ActiveCard();
+
+            if (currentCard.isPickCard)
+                outline.enabled = true;
+            else
+                outline.enabled = false;
         }
         else
         {

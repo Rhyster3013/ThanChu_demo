@@ -12,7 +12,7 @@ public class RoundController : MonoBehaviour
     [SerializeField] Player currentPlayer;
     [SerializeField] PlayerController playerController;
     [SerializeField] FunctionController functionController;
-    TimingController timingController;
+    [SerializeField] TimingController timingController;
 
     TextMeshProUGUI txbStageIndicator;
     public Button btnNextStage;
@@ -29,6 +29,7 @@ public class RoundController : MonoBehaviour
         currentPlayer = GetComponent<Player>();
         playerController = GetComponent<PlayerController>();
         functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
+        timingController = GameObject.Find("GameManager").GetComponent<TimingController>();
 
         txbStageIndicator = transform.Find("txbStageIndicator").GetComponent<TextMeshProUGUI>();
 
@@ -140,12 +141,15 @@ public class RoundController : MonoBehaviour
     #region State setters
     void CardTiming(bool active)
     {
-        currentPlayer.isNeedCard = active;
-        btnNextStage.gameObject.SetActive(active);
-        timingController.SetActiveAll(currentPlayer, active);
+        if (currentPlayer != null)
+        {
+            currentPlayer.isNeedCard = active;
+            btnNextStage.gameObject.SetActive(active);
+            timingController.SetActiveAll(currentPlayer, active);
 
-        if (currentPlayer.stage == 4)
-            btnNextStage.gameObject.SetActive(false);
+            if (currentPlayer.stage == 4)
+                btnNextStage.gameObject.SetActive(false);
+        }
     }
 
     void UpdateStageIndicator(string currentStage)
@@ -165,7 +169,7 @@ public class RoundController : MonoBehaviour
 
     public void GetPlayerStates()
     {
-        if (isInitialized == true)
+        if (isInitialized)
         {
             current = Stages[currentPlayer.stage];
             UpdateStageIndicator(current);

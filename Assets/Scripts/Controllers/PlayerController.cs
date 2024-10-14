@@ -59,58 +59,6 @@ public class PlayerController : MonoBehaviour
         currentPlayer.limitHand = currentPlayer.HP;
     }
 
-    public void GetPickedCard(int limit)
-    {
-        if (currentPlayer.handCard != null)
-        {
-            foreach (Deck card in currentPlayer.handCard)
-            {
-                if (card.isPickCard 
-                    && functionController.isNotPicked(currentPlayer.AfterPickCard, card))
-                {
-                    currentPlayer.AfterPickCard.Add(card);
-                }
-                else if (card.isPickCard == false)
-                {
-                    currentPlayer.AfterPickCard.Remove(card);
-                }
-            }
-        }
-    }
-
-    public void SetInteractability(int limit)
-    {
-        if (currentPlayer.AfterPickCard != null)
-        {
-            if (currentPlayer.AfterPickCard.Count == limit)
-            {
-                foreach (Deck card in currentPlayer.handCard)
-                {
-                    if (card.isPickCard == false)
-                    {
-                        card.isActive = false;
-                    }
-                }
-            }
-            else 
-            {
-                foreach (Deck deck in currentPlayer.handCard)
-                {
-                    deck.isActive = true;
-                }
-            }
-
-            for (int i = currentPlayer.AfterPickCard.Count - 1; i >= 0; i--) 
-            {
-                if (!currentPlayer.AfterPickCard[i].isPickCard)
-                {
-                    currentPlayer.AfterPickCard.RemoveAt(i);
-
-                }
-            }
-        }
-    }
-
     #endregion
 
 

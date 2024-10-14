@@ -26,7 +26,9 @@ public class FunctionController : MonoBehaviour
 
     #endregion
 
+
     #region Card Activations 
+
     public void CardActivate(Deck card, bool isActive)
     {
         if (isActive)
@@ -54,7 +56,6 @@ public class FunctionController : MonoBehaviour
 
         return check;
     }
-
 
     public void GetPickedCard(int limit, Player currentPlayer)
     {
