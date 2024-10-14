@@ -1,26 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class RoundController : MonoBehaviour
 {
+    bool isInitialized = false;
+
     [SerializeField] Player currentPlayer;
     [SerializeField] PlayerController playerController;
     [SerializeField] FunctionController functionController;
-    TimingController timingController = new TimingController();
-
-    GameObject playerGO;
+    TimingController timingController;
 
     TextMeshProUGUI txbStageIndicator;
     public Button btnNextStage;
+    Button btnConfirm;
+    Button btnCancel;
 
     string[] Stages = new string[7] { "Start", "Judge", "Draw", "Action", "Discard", "End", "Outside" };
-    public int currentStage = 6;
     [SerializeField] private string current;
-
-    public int limit = 0;
 
     #region Mono Behaviour
     // Start is called before the first frame update
@@ -33,22 +33,27 @@ public class RoundController : MonoBehaviour
         txbStageIndicator = transform.Find("txbStageIndicator").GetComponent<TextMeshProUGUI>();
 
         btnNextStage = transform.Find("btnNextStage").GetComponent<Button>();
+        btnConfirm = transform.Find("btnConfirm").GetComponent<Button>();
+        btnCancel = transform.Find("btnCancel").GetComponent<Button>();
+
         btnNextStage.onClick.AddListener(ProceedToNextStage);
+        btnNextStage.gameObject.SetActive(false);
+        btnConfirm.onClick.AddListener(Confirm);
+        btnCancel.onClick.AddListener(Cancel);
+
+        isInitialized = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        current = Stages[currentStage];
-        UpdateStageIndicator(Stages[currentStage]);
-
-        getPickCard();
+        GetPlayerStates();
     }
     #endregion
 
     public void RoundStart()
     {
-        currentStage = 0; // Reset stage
+        currentPlayer.stage = 0; // Reset stage
 
         StageDefault();
 
@@ -56,9 +61,11 @@ public class RoundController : MonoBehaviour
     }
 
     // Called when btnNextStage is pressed
-    void ProceedToNextStage()
+    public void ProceedToNextStage()
     {
-        currentStage++; // update current stage
+        functionController.CardClear(currentPlayer.AfterPickCard, 2);
+
+        currentPlayer.stage++; // update current stage
 
         CardTiming(false);
         ScanStages();
@@ -67,7 +74,7 @@ public class RoundController : MonoBehaviour
     public void ScanStages()
     {
         // Check the currentStage, then act based on it
-        switch (currentStage)
+        switch (currentPlayer.stage)
         {
             case 0:
                 if (currentPlayer.isStageStart)
@@ -76,7 +83,7 @@ public class RoundController : MonoBehaviour
                 }
                 else
                 {
-                    currentStage = 5;
+                    currentPlayer.stage = 5;
                     ScanStages();
                 }
                 break;
@@ -96,6 +103,7 @@ public class RoundController : MonoBehaviour
             case 3:
                 if (currentPlayer.isStageAction)
                 {
+                    currentPlayer.limitCard = 1;
                     CardTiming(true);
                     timingController.StageAction(currentPlayer);
                 }
@@ -103,8 +111,10 @@ public class RoundController : MonoBehaviour
             case 4:
                 if (currentPlayer.isStageDiscard)
                 {
-                    if(currentPlayer.handCard.Count > currentPlayer.CardLimit)
+                    if (currentPlayer.handCard.Count > currentPlayer.limitHand)
                     {
+                        currentPlayer.limitCard = currentPlayer.handCard.Count - currentPlayer.limitHand;
+                        Debug.Log("Please discard " + currentPlayer.limitCard + " cards");
                         CardTiming(true);
                     }
                     else
@@ -116,7 +126,6 @@ public class RoundController : MonoBehaviour
             case 5:
                 if (currentPlayer.isStageEnd)
                 {
-                    functionController.DiscardCard(currentPlayer, currentPlayer.handCard);
                     functionController.NextPlayerTurn();
                 }
                 ProceedToNextStage();
@@ -128,31 +137,15 @@ public class RoundController : MonoBehaviour
         }
     }
 
-    public void getPickCard()
-    {
-        if (currentStage == 3)
-        {
-            limit = 1;
-        }
-        else if (currentStage == 4)
-        {
-            limit = currentPlayer.handCard.Count - currentPlayer.CardLimit;
-            Debug.Log("Please discard " + limit + " cards");
-        }
-
-        if (currentPlayer.AfterPickCard.Count < limit)
-        {
-            playerController.GetPickedCard(limit);
-        }
-        playerController.SetInteractability(limit);
-    }
-
     #region State setters
     void CardTiming(bool active)
     {
         currentPlayer.isNeedCard = active;
-        btnNextStage.interactable = active;
+        btnNextStage.gameObject.SetActive(active);
         timingController.SetActiveAll(currentPlayer, active);
+
+        if (currentPlayer.stage == 4)
+            btnNextStage.gameObject.SetActive(false);
     }
 
     void UpdateStageIndicator(string currentStage)
@@ -168,6 +161,62 @@ public class RoundController : MonoBehaviour
         currentPlayer.isStageJudge = false;
         currentPlayer.isStageDraw = true;
         currentPlayer.isStageDiscard = true;
+    }
+
+    public void GetPlayerStates()
+    {
+        if (isInitialized == true)
+        {
+            current = Stages[currentPlayer.stage];
+            UpdateStageIndicator(current);
+
+            functionController.GetPickedCard(currentPlayer.limitCard, currentPlayer);
+            functionController.SetInteractability(currentPlayer.limitCard, currentPlayer);
+
+            ActiveButton();
+        }
+    }
+
+    public void ActiveButton()
+    {
+        if (currentPlayer.AfterPickCard != null)
+        {
+            btnConfirm.gameObject.SetActive(true);
+            btnCancel.gameObject.SetActive(true);
+            if (currentPlayer.AfterPickCard.Count == currentPlayer.limitCard)
+            {
+                btnConfirm.interactable = true;
+                btnCancel.interactable = true;
+            }
+            else
+            {
+                btnConfirm.interactable = false;
+                btnCancel.interactable = false;
+            }
+        }
+        else
+        {
+            btnConfirm.gameObject.SetActive(false);
+            btnCancel.gameObject.SetActive(false);
+        }
+    }
+
+    public void Confirm()
+    {
+        if (currentPlayer.stage == 3)
+        {
+            currentPlayer.isUseCard = true;
+        }
+        if (currentPlayer.stage == 4)
+        {
+            functionController.DiscardCard(currentPlayer, currentPlayer.handCard);
+            ProceedToNextStage();
+        }
+    }
+
+    public void Cancel()
+    {
+        functionController.CardClear(currentPlayer.AfterPickCard, 1);
     }
 
     #endregion
