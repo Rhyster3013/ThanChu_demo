@@ -11,9 +11,9 @@ public class Player : MonoBehaviour
     public int stage = 6;
 
     // Player limits
-    public int limitHand { get; set; }
+    public int limitHand;
     public int limitAttack { get; set; } = 1;
-    public int limitCard { get; set; } = 0;
+    public int limitCard = 0;
 
     // Alternative stats
     public int buff { get; set; } = 0;
@@ -33,24 +33,31 @@ public class Player : MonoBehaviour
     public List<Deck> AfterPickCard; // A list of picked cards
 
     // 5
-    public bool isUseCard;         // Confirm Using card
+    public Deck isUseCard;         // Confirm Using card
 
     // 6
     public List<Player> isTargetPlayer;	    // When targetting
     // 7
-    public bool isTargetted;	        // When being targetted, mostly passively
+    public Deck isTargetted;	        // When being targetted, mostly passively
     // 8
     public bool isAfterTargetPlayer;	// After targetting
     // 9
-    public bool isAfterTargetted;      // After being targetted, mostly passively
+    public Deck isAfterTargetted;      // After being targetted, mostly passively
 
-    // State timing
+    // Stage timing
     public bool isStageStart { get; set; } = true;      // Indicates if the player has a round
     public bool isStageJudge { get; set; } = false;     // If the player has a card in Judge Area
     public bool isStageDraw { get; set; } = true;       // If the player can draw
     public bool isStageAction { get; set; } = true;     // If the player can use cards in their turn
     public bool isStageDiscard { get; set; } = true;    // If the player needs to discard cards
     public bool isStageEnd { get; set; } = true;        // Indicates if it is about to begin another player's turn
+
+    #endregion
+
+    #region UI
+
+    public bool isPickedTarget = false;
+    public bool isPickable = false;
 
     #endregion
 }

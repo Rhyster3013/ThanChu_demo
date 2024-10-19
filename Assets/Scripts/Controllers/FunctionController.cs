@@ -1,6 +1,7 @@
-using Assets.Scripts.Models;
+
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using static Unity.VisualScripting.Member;
 using static UnityEngine.GraphicsBuffer;
@@ -14,8 +15,14 @@ public class FunctionController : MonoBehaviour
 
     public int playerIndex = 0;
     public DeckManager deckManager;
+    public CardName cardName;
 
     #region Gameplay
+
+    public void loseHP(Player player, int amount)
+    {
+        player.HP -= amount;
+    }
 
     public int getDistance(Player souce, Player target)
     {
@@ -23,6 +30,85 @@ public class FunctionController : MonoBehaviour
 
         return distance;
     }
+
+    public void UseCard(Player source, List<Player> target)
+    {
+        if (source != null && target != null)
+        {
+            foreach (Player player in target)
+            {
+                List<Deck> decks = player.AfterPickCard;
+                if (decks.Count == 1)
+                {
+                    player.isAfterTargetted = decks[1];
+                    switch (player.isAfterTargetted.Name)
+                    {
+                        case "Attack":
+                            int damage = 1 + source.buff + source.buffAttack;
+                            cardName.Attack(player, damage);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void AfterPickCard(Player source)
+    {
+        List<Deck> pickedCards = source.AfterPickCard;
+
+        if (pickedCards != null && pickedCards.Count > 0)
+        {
+            Deck pickedDeck = null;
+            Player target = null;
+            if (source.limitCard == 1)
+            {
+                pickedDeck = pickedCards[0];
+                switch (pickedDeck.Name)
+                {
+                    case "Attack":
+                        if (pickedDeck.isPickTarget != null)
+                        {
+                            target = pickedDeck.isPickTarget;
+                            Debug.Log("Target is: " +  target.name);
+                        }
+                        //else target = null;
+                        break;
+                }
+            }
+
+            if (pickedDeck != null)
+            {
+                foreach (Player player in playerList)
+                {
+                    if (player != source && source.isNeedCard
+                    && target == null)
+                    {
+                        player.isPickable = true;
+                    }
+                }
+            }
+            else
+                PlayerClear(0);
+        }
+    }
+
+    public void AssignTargets(Player player)
+    {
+        foreach(Player target in playerList)
+        {
+            if (target.isPickedTarget && isNotPicked(player.isTargetPlayer, target))
+            {
+                player.isTargetPlayer.Add(target);
+            }
+            else if (target.isPickedTarget == false)
+            {
+                player.isTargetPlayer.Remove(target);
+            }
+        }
+    }
+
+
 
     #endregion
 
@@ -39,22 +125,6 @@ public class FunctionController : MonoBehaviour
         {
             card.isActive = false;
         }
-    }
-
-    public bool isNotPicked(List<Deck> cards, Deck cardToCheck)
-    {
-        bool check = true;
-
-        if (cards != null)
-        {
-            foreach (Deck deck in cards)
-            {
-                if (deck.name == cardToCheck.name)
-                    check = false;
-            }
-        }
-
-        return check;
     }
 
     public void GetPickedCard(int limit, Player currentPlayer)
@@ -152,6 +222,27 @@ public class FunctionController : MonoBehaviour
         }
         list.Clear();
     }
+
+    public void PlayerClear(Player player, int index)
+    {
+        if (player != null)
+        {
+            switch (index)
+            {
+                case 0:
+                    player.isPickable = false;
+                    break;
+            }
+        }
+    }
+
+    public void PlayerClear(int index)
+    {
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            PlayerClear(playerList[i], index);
+        }
+    }
     #endregion
 
 
@@ -213,6 +304,41 @@ public class FunctionController : MonoBehaviour
 
     #endregion
 
+
+    #region Check duplication in list
+
+    public bool isNotPicked(List<Deck> cards, Deck cardToCheck)
+    {
+        bool check = true;
+
+        if (cards != null)
+        {
+            foreach (Deck deck in cards)
+            {
+                if (deck.name == cardToCheck.name)
+                    check = false;
+            }
+        }
+
+        return check;
+    }
+
+    public bool isNotPicked(List<Player> target, Player playerToCheck)
+    {
+        bool check = true;
+
+        if (playerToCheck != null)
+        {
+            foreach (Player player in target)
+            {
+                if (player == playerToCheck)
+                    check = false;
+            }
+        }
+
+        return check;
+    }
+    #endregion
 
     #region Game Initialize
 

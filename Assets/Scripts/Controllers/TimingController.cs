@@ -82,23 +82,23 @@ public class TimingController : MonoBehaviour
         }
     }
 
-    public void IsAfterTargetted(Player source, Player target, Deck cardUsed)
+    public void IsAfterTargetted(Player target, Deck cardUsed)
     {
-        if (source != null)
-        {
-
-        }
         List<Deck> list = new List<Deck>();
-        list = target.handCard;
-
-        if (list != null)
+        if (target != null)
         {
-            switch (cardUsed.name)
+            list = target.handCard;
+
+            if (list != null)
             {
-                case "Attack":
-                    SetUsableByName(target, "Dodge");
-                    break;
+                switch (cardUsed.name)
+                {
+                    case "Attack":
+                        SetUsableByName(target, "Dodge");
+                        break;
+                }
             }
+            else return;
         }
     }
 }

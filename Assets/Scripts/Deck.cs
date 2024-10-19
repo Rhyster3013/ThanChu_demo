@@ -1,4 +1,4 @@
-using Assets.Scripts.Models;
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +24,8 @@ public class Deck : ScriptableObject
 
     // 2
     public bool isPickCard;	        // Choose Cards that are needed/available	// Just a confirmation step
-    // 4
-    public List<Player> isPickTarget;	        // Show available targets and choose the amount of target as needed/available
+    
+    // 4 Show available targets and choose the amount of target as needed/available
+    public List<Player> isPickTargets;	  
+    public Player isPickTarget;
 }

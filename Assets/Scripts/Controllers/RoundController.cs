@@ -148,7 +148,10 @@ public class RoundController : MonoBehaviour
             timingController.SetActiveAll(currentPlayer, active);
 
             if (currentPlayer.stage == 4)
+            {
+                currentPlayer.isNeedCard = false;
                 btnNextStage.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -178,19 +181,38 @@ public class RoundController : MonoBehaviour
             functionController.SetInteractability(currentPlayer.limitCard, currentPlayer);
 
             ActiveButton();
+            ActivePlayers();
         }
+    }
+
+    public void ActivePlayers()
+    {
+        functionController.AfterPickCard(currentPlayer);
+        functionController.AssignTargets(currentPlayer);
     }
 
     public void ActiveButton()
     {
-        if (currentPlayer.AfterPickCard != null)
+        List<Deck> picked = currentPlayer.AfterPickCard;
+        if (picked != null)
         {
             btnConfirm.gameObject.SetActive(true);
             btnCancel.gameObject.SetActive(true);
-            if (currentPlayer.AfterPickCard.Count == currentPlayer.limitCard)
+            if (picked.Count == currentPlayer.limitCard)
             {
-                btnConfirm.interactable = true;
                 btnCancel.interactable = true;
+                foreach(Deck deck in picked)
+                {
+                    if (deck != null)
+                    {
+                        if (currentPlayer.isNeedCard && deck.isPickTarget != null)
+                            btnConfirm.interactable = true;
+                    }
+                    if (currentPlayer.stage == 4)
+                    {
+                        btnConfirm.interactable = true;
+                    }
+                }
             }
             else
             {
@@ -207,14 +229,18 @@ public class RoundController : MonoBehaviour
 
     public void Confirm()
     {
-        if (currentPlayer.stage == 3)
+        if (currentPlayer.isNeedCard)
         {
-            currentPlayer.isUseCard = true;
+            if(currentPlayer.AfterPickCard.Count == 1)
+            {
+                //functionController.UseCard(currentPlayer,)
+            }
         }
-        if (currentPlayer.stage == 4)
+        else
         {
             functionController.DiscardCard(currentPlayer, currentPlayer.handCard);
-            ProceedToNextStage();
+            if(currentPlayer.stage == 4)
+                ProceedToNextStage();
         }
     }
 

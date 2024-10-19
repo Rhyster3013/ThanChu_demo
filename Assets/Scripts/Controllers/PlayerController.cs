@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static Unity.VisualScripting.Member;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IPointerClickHandler
 {
     //[SerializeField] Player currentPlayer;
     public Player currentPlayer;
@@ -20,6 +21,8 @@ public class PlayerController : MonoBehaviour
 
     public Transform areaHand;      // The GO Canvas in which Card prefabs will be generate into
     public GameObject cardPrefab;   // The Card prefab to view cards
+    public Outline outline;
+    public GameObject overlayImage; // Image overlay
 
 
     #region MonoBehaviour
@@ -27,19 +30,17 @@ public class PlayerController : MonoBehaviour
     {
         areaHand = transform.Find("HandCards").transform;
         cardPrefab = Resources.Load<GameObject>("Prefabs/Card");
+
+        overlayImage = transform.Find("Active").gameObject;
+        outline = GetComponent<Outline>();
         currentPlayer = GetComponent<Player>();
+
+        outline.enabled = false;
     }
 
     private void Update()
     {
-        // Constantly updating the number of cards in hand
-        currentPlayer.numberOfCard = currentPlayer.handCard.Count;
-
-        // Constantly showing the cards in hand
-        needCard = currentPlayer.isNeedCard;
-
-        // Consstantly update player's hand card limit
-        GetCardLimit();
+        UpdatePlayerStates();
     }
 
 
@@ -59,10 +60,72 @@ public class PlayerController : MonoBehaviour
         currentPlayer.limitHand = currentPlayer.HP;
     }
 
+    public void AfterTargetted()
+    {
+        if (currentPlayer.isAfterTargetted != null)
+        timingController.IsAfterTargetted(currentPlayer, currentPlayer.isAfterTargetted);
+    }
+
     #endregion
 
 
     #region UI
+
+    public void UpdatePlayerStates()
+    {
+        if (currentPlayer != null)
+        {
+            if (currentPlayer.handCard != null)
+            {
+                // Constantly updating the number of cards in hand
+                currentPlayer.numberOfCard = currentPlayer.handCard.Count;
+            }
+
+            if (currentPlayer.isPickedTarget)
+                outline.enabled = true;
+            else
+                outline.enabled = false;
+
+            // Constantly showing the cards in hand
+            needCard = currentPlayer.isNeedCard;
+
+            // Consstantly update player's hand card limit
+            GetCardLimit();
+
+            // Active cards whenever is targetted by other cards
+            AfterTargetted();
+
+            ActivePlayer();
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (currentPlayer.isPickable)
+        {
+            if (currentPlayer.isPickedTarget == false)
+                currentPlayer.isPickedTarget = true;
+            else
+                currentPlayer.isPickedTarget = false;
+        }
+        else
+        {
+            Debug.Log("Target not pickable");
+        }
+    }
+
+    // Enable or Disable a card based on the isActive attribute of the card
+    private void ActivePlayer()
+    {
+        if (currentPlayer.isPickable == false)
+        {
+            overlayImage.SetActive(true);
+        }
+        if (currentPlayer.isPickable || currentPlayer.isPickedTarget)
+        {
+            overlayImage.SetActive(false);
+        }
+    }
 
     public void viewHandCards()
     {
