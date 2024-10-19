@@ -53,11 +53,13 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void AfterPickCard(Player source)
+    public void AfterPickCard(Player source, List<Deck> pickedCards)
     {
-        List<Deck> pickedCards = source.AfterPickCard;
-
-        if (pickedCards != null && pickedCards.Count > 0)
+        if (pickedCards == null || pickedCards.Count == 0)
+        {
+            PlayerClear(0);
+        }
+        else
         {
             Deck pickedDeck = null;
             Player target = null;
@@ -70,7 +72,7 @@ public class FunctionController : MonoBehaviour
                         if (pickedDeck.isPickTarget != null)
                         {
                             target = pickedDeck.isPickTarget;
-                            Debug.Log("Target is: " +  target.name);
+                            Debug.Log("Target is: " + target.name);
                         }
                         //else target = null;
                         break;
@@ -88,8 +90,6 @@ public class FunctionController : MonoBehaviour
                     }
                 }
             }
-            else
-                PlayerClear(0);
         }
     }
 
