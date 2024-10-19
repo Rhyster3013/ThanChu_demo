@@ -187,7 +187,7 @@ public class RoundController : MonoBehaviour
 
     public void ActivePlayers()
     {
-        if (currentPlayer != null && currentPlayer.AfterPickCard != null)
+        if (currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count != 0)
         {
             functionController.AfterPickCard(currentPlayer, currentPlayer.AfterPickCard);
         }
