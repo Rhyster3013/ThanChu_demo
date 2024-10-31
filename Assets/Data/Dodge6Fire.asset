@@ -18,7 +18,8 @@ MonoBehaviour:
   Number: 6
   Color: Red
   Element: Fire
+  Targets: 1
   isActive: 0
-  isInHand: 0
+  isUsable: 0
+  isInHand: {fileID: 0}
   isPickCard: 0
-  isPickTarget: 0

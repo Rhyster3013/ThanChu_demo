@@ -68,6 +68,9 @@ public class RoundController : MonoBehaviour
 
         currentPlayer.stage++; // update current stage
 
+        current = Stages[currentPlayer.stage];
+        UpdateStageIndicator(current);
+
         CardTiming(false);
         ScanStages();
     }
@@ -174,12 +177,6 @@ public class RoundController : MonoBehaviour
     {
         if (isInitialized)
         {
-            current = Stages[currentPlayer.stage];
-            UpdateStageIndicator(current);
-
-            functionController.GetPickedCard(currentPlayer.limitCard, currentPlayer);
-            functionController.SetInteractability(currentPlayer.limitCard, currentPlayer);
-
             ActiveButton();
             ActivePlayers();
         }
@@ -187,11 +184,10 @@ public class RoundController : MonoBehaviour
 
     public void ActivePlayers()
     {
-        if (currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count != 0)
-        {
-            functionController.AfterPickCard(currentPlayer, currentPlayer.AfterPickCard);
-        }
-        functionController.AssignTargets(currentPlayer);
+        //if (currentPlayer.AfterPickCard != null)
+        //{
+        //    functionController.AfterPickCard(currentPlayer, currentPlayer.AfterPickCard);
+        //}
     }
 
     public void ActiveButton()
@@ -204,14 +200,17 @@ public class RoundController : MonoBehaviour
             if (picked.Count == currentPlayer.limitCard)
             {
                 btnCancel.interactable = true;
-                foreach(Deck deck in picked)
+                if (currentPlayer.stage == 4)
                 {
-                    if (deck != null)
+                    btnConfirm.interactable = true;
+                }
+                if (currentPlayer.isNeedCard)
+                {
+                    if (currentPlayer.isPickTarget == null && (currentPlayer.isPickTargets == null || currentPlayer.isPickTargets.Count == 0))
                     {
-                        if (currentPlayer.isNeedCard && deck.isPickTarget != null)
-                            btnConfirm.interactable = true;
+                        btnConfirm.interactable = false;
                     }
-                    if (currentPlayer.stage == 4)
+                    else
                     {
                         btnConfirm.interactable = true;
                     }

@@ -53,58 +53,90 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void AfterPickCard(Player source, List<Deck> pickedCards)
+    public void AfterPickCard(Deck deck)
     {
-        if (pickedCards == null || pickedCards.Count == 0)
-        {
-            PlayerClear(0);
-        }
-        else
-        {
-            Deck pickedDeck = null;
-            Player target = null;
-            if (source.limitCard == 1)
-            {
-                pickedDeck = pickedCards[0];
-                switch (pickedDeck.Name)
-                {
-                    case "Attack":
-                        if (pickedDeck.isPickTarget != null)
-                        {
-                            target = pickedDeck.isPickTarget;
-                            Debug.Log("Target is: " + target.name);
-                        }
-                        //else target = null;
-                        break;
-                }
-            }
+        Player source = deck.isInHand;
 
-            if (pickedDeck != null)
+        if (source != null && source.isNeedCard)
+        {
+            foreach (Player player in playerList)
             {
-                foreach (Player player in playerList)
+                if (player != source)
                 {
-                    if (player != source && source.isNeedCard
-                    && target == null)
-                    {
-                        player.isPickable = true;
-                    }
+                    player.isPickable = true;
+                }
+                else
+                {
+                    player.isPickable = false;
                 }
             }
         }
     }
 
-    public void AssignTargets(Player player)
+    //public void AfterPickCard(Player source, List<Deck> pickedCards)
+    //{
+    //    if (pickedCards.Count == 0)
+    //    {
+    //        PlayerClear(0);
+    //    }
+    //    else
+    //    {
+    //        Deck pickedDeck = null;
+    //        Player target = null;
+    //        if (source.limitCard == 1)
+    //        {
+    //            pickedDeck = pickedCards[0];
+    //            if (source.isPickTarget != null)
+    //            {
+    //                target = source.isPickTarget;
+    //                Debug.Log("Target is: " + target.name);
+    //            }
+    //        }
+
+    //        foreach (Player player in playerList)
+    //        {
+    //            if (pickedDeck != null)
+    //            {
+    //                if (source.isNeedCard && player != source && target == null)
+    //                {
+    //                    player.isPickable = true;
+    //                }
+    //                else if (player != source && target != null)
+    //                {
+    //                    player.isPickable = false;
+    //                }
+    //            }
+    //        }
+    //        //AssignTarget(source);
+    //    }
+    //}
+
+    //public void AssignTargets(Player player)
+    //{
+    //    foreach(Player target in playerList)
+    //    {
+    //        if (target.isPickedTarget && isNotPicked(player.isTargetPlayer, target))
+    //        {
+    //            player.isTargetPlayer.Add(target);
+    //        }
+    //        else if (target.isPickedTarget == false)
+    //        {
+    //            player.isTargetPlayer.Remove(target);
+    //        }
+    //    }
+    //}
+
+    public void AssignTarget(Player target, Player user)
     {
-        foreach(Player target in playerList)
+        if (!target.isPickedTarget)
         {
-            if (target.isPickedTarget && isNotPicked(player.isTargetPlayer, target))
-            {
-                player.isTargetPlayer.Add(target);
-            }
-            else if (target.isPickedTarget == false)
-            {
-                player.isTargetPlayer.Remove(target);
-            }
+            target.isPickedTarget = true;
+            user.isPickTarget = target;
+        }
+        else
+        {
+            target.isPickedTarget = false;
+            user.isPickTarget = null;
         }
     }
 
@@ -127,32 +159,65 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void GetPickedCard(int limit, Player currentPlayer)
+    public void GetPickedCards(Deck deck)
     {
-        if (currentPlayer.handCard != null
-            && currentPlayer.AfterPickCard != null
-            && currentPlayer.AfterPickCard.Count < limit
-            && currentPlayer != null)
+        Player owner = deck.isInHand;
+
+        if (deck.isPickCard)
         {
-            foreach (Deck card in currentPlayer.handCard)
-            {
-                if (card.isPickCard
-                    && isNotPicked(currentPlayer.AfterPickCard, card))
-                {
-                    currentPlayer.AfterPickCard.Add(card);
-                }
-                else if (card.isPickCard == false)
-                {
-                    currentPlayer.AfterPickCard.Remove(card);
-                }
-            }
+            owner.AfterPick1Card = deck;
+            owner.AfterPickCard.Add(deck);
         }
+        else
+        {
+            owner.AfterPick1Card = null;
+            owner.AfterPickCard.Remove(deck);
+        }
+        SetInteractability(owner);
     }
 
-    public void SetInteractability(int limit, Player currentPlayer)
+    //public void GetPickedCard(int limit, Player currentPlayer)
+    //{
+    //    if (currentPlayer.handCard != null
+    //        && currentPlayer.AfterPickCard != null
+    //        && currentPlayer.AfterPickCard.Count < limit
+    //        && currentPlayer != null)
+    //    {
+    //        foreach (Deck card in currentPlayer.handCard)
+    //        {
+    //            if (limit == 1)
+    //            {
+    //                if (card.isPickCard)
+    //                {
+    //                    currentPlayer.AfterPick1Card = card;
+    //                    return;
+    //                }
+    //                else if (card.isPickCard == false)
+    //                {
+    //                    currentPlayer.AfterPick1Card = null;
+    //                }
+    //            }
+    //            else
+    //            {
+    //                if (card.isPickCard
+    //                    && isNotPicked(currentPlayer.AfterPickCard, card))
+    //                {
+    //                    currentPlayer.AfterPickCard.Add(card);
+    //                }
+    //                else if (card.isPickCard == false)
+    //                {
+    //                    currentPlayer.AfterPickCard.Remove(card);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+
+    public void SetInteractability(Player currentPlayer)
     {
         if (currentPlayer != null && currentPlayer.handCard != null)
         {
+            int limit = currentPlayer.limitCard;
             if (currentPlayer.AfterPickCard != null
                 && currentPlayer.AfterPickCard.Count == limit)
             {
@@ -161,14 +226,6 @@ public class FunctionController : MonoBehaviour
                     if (card.isPickCard == false)
                     {
                         card.isActive = false;
-                    }
-                }
-
-                for (int i = currentPlayer.AfterPickCard.Count - 1; i >= 0; i--)
-                {
-                    if (!currentPlayer.AfterPickCard[i].isPickCard)
-                    {
-                        currentPlayer.AfterPickCard.RemoveAt(i);
                     }
                 }
             }
@@ -192,8 +249,7 @@ public class FunctionController : MonoBehaviour
                     deck.isActive = false;
                     deck.isUsable = false;
                     deck.isPickCard = false;
-                    deck.isInHand = false;
-                    deck.isPickTarget = null;
+                    deck.isInHand = null;
                     break;
                 case 1:
                     deck.isPickCard = false;
@@ -206,9 +262,6 @@ public class FunctionController : MonoBehaviour
                 case 3:
                     deck.isActive = false;
                     deck.isUsable = false;
-                    break;
-                case 4:
-                    deck.isPickTarget = null;
                     break;
             }
         }
@@ -231,6 +284,7 @@ public class FunctionController : MonoBehaviour
             {
                 case 0:
                     player.isPickable = false;
+                    player.isPickedTarget = false;
                     break;
             }
         }
@@ -271,7 +325,7 @@ public class FunctionController : MonoBehaviour
                     Deck deck = drawDeck[0];
                     player.handCard.Add(drawDeck[0]);
                     drawDeck.RemoveAt(0);
-                    deck.isInHand = true;
+                    deck.isInHand = player;
                 }
             }
             else
@@ -339,6 +393,55 @@ public class FunctionController : MonoBehaviour
         return check;
     }
     #endregion
+
+
+    #region Update States
+
+
+    public void CardUpdate(Deck deck)
+    {
+        if (deck != null)
+        {
+            if (deck.isPickCard == false && deck.isActive == true)
+            {
+                deck.isPickCard = true;
+                AfterPickCard(deck);
+            }
+            else
+            {
+                deck.isPickCard = false;
+                PlayerClear(0);
+            }
+
+            GetPickedCards(deck);
+        }
+    }
+
+    public void PlayerUpdate(Player target)
+    {
+        if (target != null)
+        {
+            Player user = null;
+
+            foreach (Player player in playerList)
+            {
+                if (player != target)
+                {
+                    user = player;
+                    break;
+                }
+            }
+
+            Debug.Log(user);
+            if (user != null)
+            {
+                AssignTarget(target, user);
+            }
+        }
+    }
+
+    #endregion
+
 
     #region Game Initialize
 

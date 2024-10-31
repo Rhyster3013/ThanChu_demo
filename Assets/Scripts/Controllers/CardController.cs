@@ -13,11 +13,15 @@ public class CardController : MonoBehaviour, IPointerClickHandler
     public GameObject overlayImage; // Image overlay
     private Outline outline;        // Card Outline
 
+    FunctionController function;
+
     private void Start()
     {
         overlayImage = transform.Find("Active").gameObject;
         outline = GetComponent<Outline>();
         outline.enabled = false;
+
+        function = GameObject.Find("GameManager").GetComponent<FunctionController>();
     }
 
     private void Update()
@@ -29,18 +33,11 @@ public class CardController : MonoBehaviour, IPointerClickHandler
     {
         if (currentCard != null)
         {
-            if (currentCard.isUsable)
+            if (currentCard.isUsable && currentCard.isActive)
             {
                 Debug.Log(gameObject.name + " pressed!");
 
-                if (currentCard.isPickCard == false && currentCard.isActive == true)
-                {
-                    currentCard.isPickCard = true;
-                }
-                else
-                {
-                    currentCard.isPickCard = false;
-                }
+                function.CardUpdate(currentCard);
             }
             else
             {
@@ -54,7 +51,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
     // Display every UI elements based on the Deck currentCard
     private void ViewCard()
     {
-        if (currentCard != null && currentCard.isInHand)
+        if (currentCard != null && currentCard.isInHand != null)
         {
             setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
             setName(gameObject, currentCard.Name);
@@ -70,6 +67,10 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         {
             Destroy(gameObject);
         }
+    }
+
+    private void updateView()
+    {
     }
 
     // Enable or Disable a card based on the isActive attribute of the card

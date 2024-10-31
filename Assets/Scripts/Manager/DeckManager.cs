@@ -30,9 +30,8 @@ public class DeckManager : MonoBehaviour
         foreach (var deck in drawDecks)
         {
             deck.isActive = false;
-            deck.isInHand = false;
+            deck.isInHand = null;
             deck.isPickCard = false;
-            deck.isPickTarget = null;
         }
     }
 

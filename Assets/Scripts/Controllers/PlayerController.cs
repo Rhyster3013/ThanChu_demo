@@ -11,8 +11,8 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
 {
     //[SerializeField] Player currentPlayer;
     public Player currentPlayer;
-    FunctionController functionController = new FunctionController();
-    TimingController timingController = new TimingController();
+    FunctionController functionController;
+    TimingController timingController;
 
     GameManager gameManager;
 
@@ -34,6 +34,8 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
         overlayImage = transform.Find("Active").gameObject;
         outline = GetComponent<Outline>();
         currentPlayer = GetComponent<Player>();
+
+        functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
 
         outline.enabled = false;
     }
@@ -103,10 +105,7 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
     {
         if (currentPlayer.isPickable)
         {
-            if (currentPlayer.isPickedTarget == false)
-                currentPlayer.isPickedTarget = true;
-            else
-                currentPlayer.isPickedTarget = false;
+            functionController.PlayerUpdate(currentPlayer);
         }
         else
         {
@@ -137,8 +136,9 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
         for (int i = 0; i < currentPlayer.handCard.Count; i++)
         {
             getCardView(currentPlayer.handCard[i], i);
-            currentPlayer.handCard[i].isInHand = true;
+            currentPlayer.handCard[i].isInHand = currentPlayer;
         }
+        functionController.SetInteractability(currentPlayer);
     }
 
     public void getCardView(Deck card, int index)

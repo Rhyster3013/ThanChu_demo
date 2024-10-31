@@ -3,6 +3,14 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+
+    #region UI
+
+    public bool isPickedTarget = false;
+    public bool isPickable = false;
+
+    #endregion
+
     // Initial stats
     public int Id { get; set; }         // Player id or number of order
     public int MaxHP { get; set; } = 4;
@@ -31,6 +39,11 @@ public class Player : MonoBehaviour
 
     // 3
     public List<Deck> AfterPickCard; // A list of picked cards
+    public Deck AfterPick1Card;
+
+    // 4 Show available targets and choose the amount of target as needed/available
+    public List<Player> isPickTargets;
+    public Player isPickTarget;
 
     // 5
     public Deck isUseCard;         // Confirm Using card
@@ -51,13 +64,6 @@ public class Player : MonoBehaviour
     public bool isStageAction { get; set; } = true;     // If the player can use cards in their turn
     public bool isStageDiscard { get; set; } = true;    // If the player needs to discard cards
     public bool isStageEnd { get; set; } = true;        // Indicates if it is about to begin another player's turn
-
-    #endregion
-
-    #region UI
-
-    public bool isPickedTarget = false;
-    public bool isPickable = false;
 
     #endregion
 }
