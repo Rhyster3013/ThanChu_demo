@@ -11,28 +11,6 @@ public class TimingController : MonoBehaviour
             "AttackPoison"
         };
 
-    public void SetUsableByName(Player player, string cardName)
-    {
-        if(player != null)
-        {
-            List<Deck> list = new List<Deck>();
-            list = player.handCard;
-
-            if (list != null)
-            {
-                foreach (Deck deck in list)
-                {
-                    if (string.Compare(deck.name, cardName) == 0)
-                    {
-                        deck.isUsable = true;
-                    }
-                    else
-                        deck.isUsable = false;
-                }
-            }
-        }
-    }
-
     public void SetActiveAll(Player player, bool isActive)
     {
         if (player != null)
@@ -46,6 +24,32 @@ public class TimingController : MonoBehaviour
                 {
                     deck.isActive = isActive;
                     deck.isUsable = isActive;
+                }
+            }
+        }
+    }
+
+    public void SetUsableByName(Player player, string cardName)
+    {
+        if(player != null)
+        {
+            List<Deck> list = new List<Deck>();
+            list = player.handCard;
+
+            if (list != null)
+            {
+                foreach (Deck deck in list)
+                {
+                    if (string.Compare(deck.Name, cardName) == 0)
+                    {
+                        deck.isUsable = true;
+                        deck.isActive = true;
+                    }
+                    else
+                    {
+                        deck.isUsable = false;
+                        deck.isActive = false;
+                    }
                 }
             }
         }
@@ -84,14 +88,14 @@ public class TimingController : MonoBehaviour
 
     public void IsAfterTargetted(Player target, Deck cardUsed)
     {
-        List<Deck> list = new List<Deck>();
         if (target != null)
         {
-            list = target.handCard;
+            target.isNeedCard = true;
+            List<Deck> list = target.handCard;
 
             if (list != null)
             {
-                switch (cardUsed.name)
+                switch (cardUsed.Name)
                 {
                     case "Attack":
                         SetUsableByName(target, "Dodge");

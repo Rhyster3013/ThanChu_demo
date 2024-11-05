@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
     //[SerializeField] Player currentPlayer;
     public Player currentPlayer;
     FunctionController functionController;
-    TimingController timingController;
 
     GameManager gameManager;
 
@@ -62,12 +61,6 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
         currentPlayer.limitHand = currentPlayer.HP;
     }
 
-    public void AfterTargetted()
-    {
-        if (currentPlayer.isAfterTargetted != null)
-        timingController.IsAfterTargetted(currentPlayer, currentPlayer.isAfterTargetted);
-    }
-
     #endregion
 
 
@@ -95,7 +88,7 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
             GetCardLimit();
 
             // Active cards whenever is targetted by other cards
-            AfterTargetted();
+            //AfterTargetted();
 
             ActivePlayer();
         }

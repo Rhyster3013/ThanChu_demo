@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     // Initial stats
     public int Id { get; set; }         // Player id or number of order
     public int MaxHP { get; set; } = 4;
-    public int HP { get; set; } = 4;         // Current HP
+    public int HP = 4;         // Current HP
     public string Faction { get; set; }
     public int stage = 6;
 

@@ -52,6 +52,8 @@ public class RoundController : MonoBehaviour
     }
     #endregion
 
+
+    #region Stage setter
     public void RoundStart()
     {
         currentPlayer.stage = 0; // Reset stage
@@ -141,7 +143,10 @@ public class RoundController : MonoBehaviour
         }
     }
 
-    #region State setters
+    #endregion
+
+
+    #region UI setters
     void CardTiming(bool active)
     {
         if (currentPlayer != null)
@@ -178,16 +183,7 @@ public class RoundController : MonoBehaviour
         if (isInitialized)
         {
             ActiveButton();
-            ActivePlayers();
         }
-    }
-
-    public void ActivePlayers()
-    {
-        //if (currentPlayer.AfterPickCard != null)
-        //{
-        //    functionController.AfterPickCard(currentPlayer, currentPlayer.AfterPickCard);
-        //}
     }
 
     public void ActiveButton()
@@ -235,7 +231,7 @@ public class RoundController : MonoBehaviour
         {
             if(currentPlayer.AfterPickCard.Count == 1)
             {
-                //functionController.UseCard(currentPlayer,)
+                functionController.UseCard(currentPlayer);
             }
         }
         else
@@ -250,6 +246,21 @@ public class RoundController : MonoBehaviour
     {
         functionController.CardClear(currentPlayer.AfterPickCard, 1);
     }
+
+    public void UseCard()
+    {
+        if (currentPlayer.limitCard == 1)
+        {
+            if (currentPlayer.AfterPick1Card.Targets == 1)
+            {
+
+            }
+        }
+    }
+
+    #endregion
+
+    #region Timing
 
     #endregion
 }

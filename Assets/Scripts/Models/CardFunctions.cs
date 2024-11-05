@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardName : MonoBehaviour
+public class CardFunctions : MonoBehaviour
 {
     FunctionController func;
 
@@ -13,10 +13,17 @@ public class CardName : MonoBehaviour
 
     public void Attack(Player player, int damage)
     {
-        if (player == null || player.isAfterTargetted) return;
-        else
+        if (func.HasNo(player, "Dodge"))
         {
             func.loseHP(player, damage);
+        }
+    }
+
+    public void Dodge(Player user)
+    {
+        if (user.isAfterTargetted.Name == "Attack")
+        {
+            user.isAfterTargetted = null;
         }
     }
 }
