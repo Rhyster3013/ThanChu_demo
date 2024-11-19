@@ -37,6 +37,10 @@ public class DeckSpawner
                 {
                     card.Color = "Black";
                 }
+
+                card.Damage = 1;
+                card.Targets = 1;
+
                 AssetDatabase.CreateAsset(card, cardPath);
             }
         }
@@ -61,18 +65,40 @@ public class DeckSpawner
                 card.Number = number;
                 card.Element = elementList[element];
                 card.Color = "Red";
+
+                card.Damage = 0;
+                card.Targets = 0;
+
                 AssetDatabase.CreateAsset(card, cardPath);
             }
         }
 
-       // Step 2 - Create some example vehicles in the current scene
-       //Deck Attack1Earth = AssetDatabase.LoadAssetAtPath<Deck>("Assets/Data/Attack1Earth.asset");
-       // {
-       //     var card = GameObject.CreatePrimitive(PrimitiveType.Plane);
-       //     card.name = "Attack1Earth";
+        for (int i = 25; i < 30; i++)
+        {
+            int number = Random.Range(1, 13);
+            int element = Random.Range(0, 2);
+            string cardName = "Heal" + number + elementList[element];
+            string cardPath = "Assets/Data/" + cardName + ".asset";
 
-       //     var cardInfo = card.AddComponent<DeckInstance>();
-       //     cardInfo.Initialize(Attack1Earth);
-       // }
+            // Step 1 - Create or reload the assets that store each Deck object.
+            Deck card = AssetDatabase.LoadAssetAtPath<Deck>(cardPath);
+            if (card == null)
+            {
+                // Create and save ScriptableObject because it doesn't exist yet
+                card = ScriptableObject.CreateInstance<Deck>();
+                card.Id = i;
+                card.Name = "Heal";
+                card.Description = "Heal 1 HP or Rescue 1 player";
+
+                card.Number = number;
+                card.Element = elementList[element];
+                card.Color = "Red";
+
+                card.Damage = 0;
+                card.Targets = -1;
+
+                AssetDatabase.CreateAsset(card, cardPath);
+            }
+        }
     }
 }

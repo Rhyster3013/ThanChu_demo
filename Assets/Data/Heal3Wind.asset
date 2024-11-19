@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
-  m_Name: Attack12Water
+  m_Name: Heal3Wind
   m_EditorClassIdentifier: 
-  Id: 11
-  Name: Attack
-  Description: Deal 1 dmg
-  Number: 12
-  Color: Black
-  Element: Water
-  Targets: 1
-  Damage: 1
+  Id: 27
+  Name: Heal
+  Description: Heal 1 HP or Rescue 1 player
+  Number: 3
+  Color: Red
+  Element: Wind
+  Targets: -1
+  Damage: 0
   isActive: 0
   isUsable: 0
   isInHand: {fileID: 0}

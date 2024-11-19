@@ -20,8 +20,10 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
 
     public Transform areaHand;      // The GO Canvas in which Card prefabs will be generate into
     public GameObject cardPrefab;   // The Card prefab to view cards
+
     public Outline outline;
     public GameObject overlayImage; // Image overlay
+    public TextMeshProUGUI txtHP;
 
 
     #region MonoBehaviour
@@ -31,9 +33,11 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
         cardPrefab = Resources.Load<GameObject>("Prefabs/Card");
 
         overlayImage = transform.Find("Active").gameObject;
-        outline = GetComponent<Outline>();
-        currentPlayer = GetComponent<Player>();
 
+        txtHP = transform.Find("HP").gameObject.GetComponent<TextMeshProUGUI>();
+        outline = GetComponent<Outline>();
+
+        currentPlayer = GetComponent<Player>();
         functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
 
         outline.enabled = false;
@@ -87,10 +91,9 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
             // Consstantly update player's hand card limit
             GetCardLimit();
 
-            // Active cards whenever is targetted by other cards
-            //AfterTargetted();
-
             ActivePlayer();
+
+            txtHP.text = currentPlayer.HP.ToString();
         }
     }
 

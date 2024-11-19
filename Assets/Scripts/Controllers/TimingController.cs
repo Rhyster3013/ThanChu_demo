@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class TimingController : MonoBehaviour
 {
@@ -33,10 +34,13 @@ public class TimingController : MonoBehaviour
     {
         if(player != null)
         {
-            List<Deck> list = new List<Deck>();
-            list = player.handCard;
+            List<Deck> list = player.handCard;
 
-            if (list != null)
+            if (HasNo(player, cardName))
+            {
+                Debug.Log("You have no " + cardName + " cards");
+            }
+            else
             {
                 foreach (Deck deck in list)
                 {
@@ -59,10 +63,13 @@ public class TimingController : MonoBehaviour
     {
         if (player != null)
         {
-            List<Deck> list = new List<Deck>();
-            list = player.handCard;
+            List<Deck> list = player.handCard;
 
-            if (list != null)
+            if (HasNo(player, cardName))
+            {
+                Debug.Log("You have no " + cardName + " cards");
+            }
+            else
             {
                 foreach (Deck deck in list)
                 {
@@ -82,7 +89,13 @@ public class TimingController : MonoBehaviour
     {
         if (player != null)
         {
-            SetUsableByName(player, attacks);
+            if (player.limitAttack != 0)
+                SetUsableByName(player, attacks);
+
+            if (player.HP < player.MaxHP)
+            {
+                SetUsableByName(player, "Heal");
+            }
         }
     }
 
@@ -90,7 +103,10 @@ public class TimingController : MonoBehaviour
     {
         if (target != null)
         {
+            Debug.Log("Please respond with a card");
+
             target.isNeedCard = true;
+            target.limitCard = 1;
             List<Deck> list = target.handCard;
 
             if (list != null)
@@ -99,10 +115,43 @@ public class TimingController : MonoBehaviour
                 {
                     case "Attack":
                         SetUsableByName(target, "Dodge");
+                        target.isRespond = true;
                         break;
                 }
             }
             else return;
         }
+    }
+
+    public bool HasNo(Player player, string cardName)
+    {
+        bool hasNo = true;
+        List<Deck> handCard = player.handCard;
+
+        foreach (Deck deck in handCard)
+        {
+            if (deck.Name == cardName)
+            {
+                hasNo = false;
+            }
+        }
+
+        return hasNo;
+    }
+
+    public bool HasNo(Player player, List<string> cardName)
+    {
+        bool hasNo = true;
+        List<Deck> handCard = player.handCard;
+
+        foreach (Deck deck in handCard)
+        {
+            if (cardName.Contains(deck.Name))
+            {
+                hasNo = false;
+            }
+        }
+
+        return hasNo;
     }
 }

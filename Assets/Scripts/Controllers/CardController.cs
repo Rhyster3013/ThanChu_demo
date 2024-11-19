@@ -51,7 +51,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
     // Display every UI elements based on the Deck currentCard
     private void ViewCard()
     {
-        if (currentCard != null && currentCard.isInHand != null)
+        if (currentCard != null && currentCard.isInHand != null && !currentCard.isProcessing)
         {
             setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
             setName(gameObject, currentCard.Name);

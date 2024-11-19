@@ -11,12 +11,14 @@ public class CardFunctions : MonoBehaviour
         func = GetComponent<FunctionController>();
     }
 
-    public void Attack(Player player, int damage)
+    public void Attack(Player user, Player target, int damage)
     {
-        if (func.HasNo(player, "Dodge"))
-        {
-            func.loseHP(player, damage);
-        }
+        func.loseHP(target, damage);
+        Debug.Log("The Attack has dealt damage");
+
+        target.isAfterTargetted = null;
+
+        func.DiscardCard(user);
     }
 
     public void Dodge(Player user)
@@ -24,6 +26,17 @@ public class CardFunctions : MonoBehaviour
         if (user.isAfterTargetted.Name == "Attack")
         {
             user.isAfterTargetted = null;
+            Debug.Log("Dodged");
+
+            func.DiscardCard(user);
         }
+    }
+
+    public void Heal(Player user, Player target)
+    {
+        target.HP++;
+
+        target.isAfterTargetted = null;
+        func.DiscardCard(user);
     }
 }

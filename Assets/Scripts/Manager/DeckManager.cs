@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
-    public List<Deck> drawDecks = new List<Deck>();
-    public List<Deck> discardDecks = new List<Deck>();
+    public List<Deck> drawDecks = new();
+    public List<Deck> discardDecks = new();
     public int countDraw;
     public int countDiscard;
 
@@ -57,7 +57,7 @@ public class DeckManager : MonoBehaviour
         }
 
         // Shuffle the AllDeck randomly và add them to the Deck
-        while (drawDecks.Count < 25 && allDecks.Count > 0)
+        while (drawDecks.Count < 30 && allDecks.Count > 0)
         {
             int randomIndex = Random.Range(0, allDecks.Count);
             drawDecks.Add(allDecks[randomIndex]);
@@ -71,6 +71,16 @@ public class DeckManager : MonoBehaviour
         }
     }
 
+    public void RefillDeck()
+    {
+        int discard = discardDecks.Count;
+        while (drawDecks.Count < discard && discardDecks.Count > 0)
+        {
+            int randomIndex = Random.Range(0, discardDecks.Count);
+            drawDecks.Add(discardDecks[randomIndex]);
+            discardDecks.RemoveAt(randomIndex); // Remove the added cards from the allDeck to prevent repeat
+        }
+    }
 
     #endregion
 }

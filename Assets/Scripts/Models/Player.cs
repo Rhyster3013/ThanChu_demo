@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -16,12 +17,13 @@ public class Player : MonoBehaviour
     public int MaxHP { get; set; } = 4;
     public int HP = 4;         // Current HP
     public string Faction { get; set; }
+    public int Status = 1;
     public int stage = 6;
 
     // Player limits
     public int limitHand;
-    public int limitAttack { get; set; } = 1;
-    public int limitCard = 0;
+    public int limitAttack = 1;
+    public int limitCard = 1;
 
     // Alternative stats
     public int buff { get; set; } = 0;
@@ -36,6 +38,7 @@ public class Player : MonoBehaviour
     // Card Timing
     // 1. Can dung the do duoc Lenh hoac trong giai doan Ra the
     public bool isNeedCard;	    // Enable usable Cards
+    public bool isRespond;
 
     // 3
     public List<Deck> AfterPickCard; // A list of picked cards
@@ -64,6 +67,13 @@ public class Player : MonoBehaviour
     public bool isStageAction { get; set; } = true;     // If the player can use cards in their turn
     public bool isStageDiscard { get; set; } = true;    // If the player needs to discard cards
     public bool isStageEnd { get; set; } = true;        // Indicates if it is about to begin another player's turn
+
+    #endregion
+
+    #region Buttons
+
+    public bool isConfirm;
+    public bool isCancel;
 
     #endregion
 }

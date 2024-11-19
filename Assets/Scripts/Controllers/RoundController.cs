@@ -67,8 +67,11 @@ public class RoundController : MonoBehaviour
     public void ProceedToNextStage()
     {
         functionController.CardClear(currentPlayer.AfterPickCard, 2);
+        functionController.CardClear(currentPlayer.AfterPick1Card, 2);
 
         currentPlayer.stage++; // update current stage
+        if (currentPlayer.stage == 3)
+            currentPlayer.limitAttack = 1;
 
         current = Stages[currentPlayer.stage];
         UpdateStageIndicator(current);
@@ -112,6 +115,8 @@ public class RoundController : MonoBehaviour
                     currentPlayer.limitCard = 1;
                     CardTiming(true);
                     timingController.StageAction(currentPlayer);
+                    if (currentPlayer.limitAttack == 0)
+                        Debug.Log("You can no longer attack");
                 }
                 break;
             case 4:
@@ -133,6 +138,7 @@ public class RoundController : MonoBehaviour
                 if (currentPlayer.isStageEnd)
                 {
                     functionController.NextPlayerTurn();
+                    currentPlayer.limitAttack = 0;
                 }
                 ProceedToNextStage();
                 break;
@@ -153,11 +159,11 @@ public class RoundController : MonoBehaviour
         {
             currentPlayer.isNeedCard = active;
             btnNextStage.gameObject.SetActive(active);
-            timingController.SetActiveAll(currentPlayer, active);
 
             if (currentPlayer.stage == 4)
             {
                 currentPlayer.isNeedCard = false;
+                timingController.SetActiveAll(currentPlayer, active);
                 btnNextStage.gameObject.SetActive(false);
             }
         }
@@ -180,27 +186,32 @@ public class RoundController : MonoBehaviour
 
     public void GetPlayerStates()
     {
-        if (isInitialized)
-        {
-            ActiveButton();
-        }
+        btnCancelActive();
+        btnConfirmActive();
     }
 
-    public void ActiveButton()
+    #endregion
+
+    #region Buttons
+
+    public void btnConfirmActive()
     {
-        List<Deck> picked = currentPlayer.AfterPickCard;
-        if (picked != null)
+        List<Deck> pickedList = currentPlayer.AfterPickCard;
+        Deck pickedDeck = currentPlayer.AfterPick1Card;
+
+        if (pickedDeck != null || (pickedList != null && pickedList.Count == currentPlayer.limitCard && pickedList.Count != 0))
         {
-            btnConfirm.gameObject.SetActive(true);
-            btnCancel.gameObject.SetActive(true);
-            if (picked.Count == currentPlayer.limitCard)
+            if (currentPlayer.stage == 4)
             {
-                btnCancel.interactable = true;
-                if (currentPlayer.stage == 4)
+                btnConfirm.interactable = true;
+            }
+            else if (currentPlayer.isNeedCard)
+            {
+                if (currentPlayer.isRespond)
                 {
                     btnConfirm.interactable = true;
                 }
-                if (currentPlayer.isNeedCard)
+                else
                 {
                     if (currentPlayer.isPickTarget == null && (currentPlayer.isPickTargets == null || currentPlayer.isPickTargets.Count == 0))
                     {
@@ -212,16 +223,27 @@ public class RoundController : MonoBehaviour
                     }
                 }
             }
-            else
-            {
-                btnConfirm.interactable = false;
-                btnCancel.interactable = false;
-            }
         }
         else
         {
-            btnConfirm.gameObject.SetActive(false);
-            btnCancel.gameObject.SetActive(false);
+            btnConfirm.interactable = false;
+        }
+    }
+
+    public void btnCancelActive()
+    {
+        List<Deck> pickedList = currentPlayer.AfterPickCard;
+        Deck pickedDeck = currentPlayer.AfterPick1Card;
+
+        if (pickedDeck != null 
+            || (pickedList != null && pickedList.Count == currentPlayer.limitCard && pickedList.Count != 0) 
+            || currentPlayer.isRespond)
+        {
+            btnCancel.interactable = true;
+        }
+        else
+        {
+            btnCancel.interactable = false;
         }
     }
 
@@ -229,38 +251,47 @@ public class RoundController : MonoBehaviour
     {
         if (currentPlayer.isNeedCard)
         {
-            if(currentPlayer.AfterPickCard.Count == 1)
+            if (!currentPlayer.isRespond)
             {
                 functionController.UseCard(currentPlayer);
+            }
+            else if (currentPlayer.isRespond)
+            {
+                functionController.RespondCard(currentPlayer, false);
             }
         }
         else
         {
-            functionController.DiscardCard(currentPlayer, currentPlayer.handCard);
-            if(currentPlayer.stage == 4)
+            functionController.DiscardCard(currentPlayer);
+            if (currentPlayer.stage == 4)
                 ProceedToNextStage();
         }
+
+        //functionController.SetInteractability(currentPlayer);
     }
 
     public void Cancel()
     {
-        functionController.CardClear(currentPlayer.AfterPickCard, 1);
-    }
+        List<Deck> pickedList = currentPlayer.AfterPickCard;
+        Deck pickedDeck = currentPlayer.AfterPick1Card;
 
-    public void UseCard()
-    {
-        if (currentPlayer.limitCard == 1)
+        if (pickedDeck != null || (pickedList != null && pickedList.Count != 0))
         {
-            if (currentPlayer.AfterPick1Card.Targets == 1)
-            {
+            functionController.CardClear(currentPlayer.AfterPickCard, 1);
+            functionController.CardClear(currentPlayer.AfterPick1Card, 1);
 
-            }
+            currentPlayer.AfterPickCard.Clear();
+            currentPlayer.AfterPick1Card = null;
+
+            functionController.PlayerClear(0);
         }
+        else
+        {
+            functionController.RespondCard(currentPlayer, true);
+        }
+
+        functionController.SetInteractability(currentPlayer);
     }
-
-    #endregion
-
-    #region Timing
 
     #endregion
 }
