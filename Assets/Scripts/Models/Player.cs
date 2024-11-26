@@ -17,8 +17,8 @@ public class Player : MonoBehaviour
     public int MaxHP { get; set; } = 4;
     public int HP = 4;         // Current HP
     public string Faction { get; set; }
-    public int Status = 1;
-    public int stage = 6;
+    public int Status = 1;              // -1: Dying;    0: Dead;   1: Active;  2: Discarding or Responding
+    public int stage = 6;               // Current stage of player, as in Draw, Action, Discard,...
 
     // Player limits
     public int limitHand;

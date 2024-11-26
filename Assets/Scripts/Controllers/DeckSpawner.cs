@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -10,10 +11,14 @@ public class DeckSpawner
     {
         List<string> elementList = new List<string>() { "Fire", "Wind", "Water", "Earth" };
 
-        for (int i = 0; i < 15; i++)
+        int a = 0;
+        int b = 15;
+        int c = 25;
+
+        while ( a < 15)
         {
-            int number = Random.Range(1, 13);
-            int element = Random.Range(0, 4);
+            int number = UnityEngine.Random.Range(1, 13);
+            int element = UnityEngine.Random.Range(0, 4);
             string cardName = "Attack" + number + elementList[element];
             string cardPath = "Assets/Data/" + cardName + ".asset";
 
@@ -23,7 +28,7 @@ public class DeckSpawner
             {
                 // Create and save ScriptableObject because it doesn't exist yet
                 card = ScriptableObject.CreateInstance<Deck>();
-                card.Id = i;
+                card.Id = a;
                 card.Name = "Attack";
                 card.Description = "Deal 1 dmg";
 
@@ -42,13 +47,15 @@ public class DeckSpawner
                 card.Targets = 1;
 
                 AssetDatabase.CreateAsset(card, cardPath);
+
+                a++;
             }
         }
 
-        for (int i = 15; i < 25; i++)
+        while ( b < 25)
         {
-            int number = Random.Range(1, 13);
-            int element = Random.Range(0, 2);
+            int number = UnityEngine.Random.Range(1, 13);
+            int element = UnityEngine.Random.Range(0, 2);
             string cardName = "Dodge" + number + elementList[element];
             string cardPath = "Assets/Data/" + cardName + ".asset";
 
@@ -58,7 +65,7 @@ public class DeckSpawner
             {
                 // Create and save ScriptableObject because it doesn't exist yet
                 card = ScriptableObject.CreateInstance<Deck>();
-                card.Id = i;
+                card.Id = b;
                 card.Name = "Dodge";
                 card.Description = "Evade an Attack";
 
@@ -70,13 +77,16 @@ public class DeckSpawner
                 card.Targets = 0;
 
                 AssetDatabase.CreateAsset(card, cardPath);
+
+                b++;
             }
         }
 
-        for (int i = 25; i < 30; i++)
+
+        while (c < 30)
         {
-            int number = Random.Range(1, 13);
-            int element = Random.Range(0, 2);
+            int number = UnityEngine.Random.Range(1, 13);
+            int element = UnityEngine.Random.Range(0, 2);
             string cardName = "Heal" + number + elementList[element];
             string cardPath = "Assets/Data/" + cardName + ".asset";
 
@@ -86,7 +96,7 @@ public class DeckSpawner
             {
                 // Create and save ScriptableObject because it doesn't exist yet
                 card = ScriptableObject.CreateInstance<Deck>();
-                card.Id = i;
+                card.Id = c;
                 card.Name = "Heal";
                 card.Description = "Heal 1 HP or Rescue 1 player";
 
@@ -98,6 +108,8 @@ public class DeckSpawner
                 card.Targets = -1;
 
                 AssetDatabase.CreateAsset(card, cardPath);
+
+                c++;
             }
         }
     }

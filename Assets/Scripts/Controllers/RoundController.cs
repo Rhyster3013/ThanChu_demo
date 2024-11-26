@@ -126,6 +126,8 @@ public class RoundController : MonoBehaviour
                     {
                         currentPlayer.limitCard = currentPlayer.handCard.Count - currentPlayer.limitHand;
                         Debug.Log("Please discard " + currentPlayer.limitCard + " cards");
+                        currentPlayer.Status = 2;
+
                         CardTiming(true);
                     }
                     else
@@ -237,7 +239,8 @@ public class RoundController : MonoBehaviour
 
         if (pickedDeck != null 
             || (pickedList != null && pickedList.Count == currentPlayer.limitCard && pickedList.Count != 0) 
-            || currentPlayer.isRespond)
+            || currentPlayer.isRespond
+            || (functionController.processCase != 0 && functionController.playerList[functionController.respondIndex] == currentPlayer))
         {
             btnCancel.interactable = true;
         }
@@ -287,7 +290,10 @@ public class RoundController : MonoBehaviour
         }
         else
         {
-            functionController.RespondCard(currentPlayer, true);
+            if (functionController.processCase != 0)
+                functionController.SkipScan();
+            if (currentPlayer.isRespond)
+                functionController.RespondCard(currentPlayer, true);
         }
 
         functionController.SetInteractability(currentPlayer);

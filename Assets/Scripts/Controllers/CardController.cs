@@ -69,10 +69,6 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void updateView()
-    {
-    }
-
     // Enable or Disable a card based on the isActive attribute of the card
     private void ActiveCard()
     {

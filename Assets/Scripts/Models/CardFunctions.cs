@@ -34,7 +34,8 @@ public class CardFunctions : MonoBehaviour
 
     public void Heal(Player user, Player target)
     {
-        target.HP++;
+        func.HealHP(target);
+        Debug.Log("Player " + target + "has healed 1 HP");
 
         target.isAfterTargetted = null;
         func.DiscardCard(user);
