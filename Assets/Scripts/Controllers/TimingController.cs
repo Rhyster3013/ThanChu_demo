@@ -49,11 +49,6 @@ public class TimingController : MonoBehaviour
                         deck.isUsable = true;
                         deck.isActive = true;
                     }
-                    else
-                    {
-                        deck.isUsable = false;
-                        deck.isActive = false;
-                    }
                 }
             }
         }
@@ -78,8 +73,6 @@ public class TimingController : MonoBehaviour
                         deck.isUsable = true;
                         deck.isActive = true;
                     }
-                    else
-                        deck.isUsable = false;
                 }
             }
         }
@@ -89,12 +82,22 @@ public class TimingController : MonoBehaviour
     {
         if (player != null)
         {
-            if (player.limitAttack != 0)
-                SetUsableByName(player, attacks);
+            if (player.limitAttack > 0)
+            {
+                SetUsableByName(player, "Attack");
+            }
+            else
+            {
+                Debug.Log("You can no longer attack");
+            }
 
             if (player.HP < player.MaxHP)
             {
                 SetUsableByName(player, "Heal");
+            }
+            else
+            {
+                Debug.Log("You can not heal");
             }
         }
     }

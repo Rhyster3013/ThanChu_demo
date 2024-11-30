@@ -134,7 +134,7 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
             getCardView(currentPlayer.handCard[i], i);
             currentPlayer.handCard[i].isInHand = currentPlayer;
         }
-        functionController.SetInteractability(currentPlayer);
+        //functionController.SetInteractability(currentPlayer);
     }
 
     public void getCardView(Deck card, int index)

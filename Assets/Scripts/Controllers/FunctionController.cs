@@ -38,14 +38,17 @@ public class FunctionController : MonoBehaviour
     public void HealHP(Player player)
     {
         player.HP++;
-
-        if (player.HP <= 0)
+        
+        if (processCase == 1)
         {
-            Dying(player, true);
-        }
-        else
-        {
-            Dying(player, false);
+            if (player.HP <= 0)
+            {
+                Dying(player, true);
+            }
+            else
+            {
+                Dying(player, false);
+            }
         }
     }
 
@@ -53,7 +56,7 @@ public class FunctionController : MonoBehaviour
     {
         if (stillNeed)
         {
-            PlayerClear(3);
+            PlayerClear(2);
 
             player.Status = -1;
             processCase = 1;
@@ -103,28 +106,6 @@ public class FunctionController : MonoBehaviour
             timingController.IsAfterTargetted(target, target.isAfterTargetted);
     }
 
-    //public void UseCard(Player source, List<Player> target)
-    //{
-    //    if (source != null && target != null)
-    //    {
-    //        foreach (Player player in target)
-    //        {
-    //            List<Deck> decks = player.AfterPickCard;
-    //            if (decks.Count == 1)
-    //            {
-    //                player.isAfterTargetted = decks[1];
-    //                switch (player.isAfterTargetted.Name)
-    //                {
-    //                    case "Attack":
-    //                        int damage = 1 + source.buff + source.buffAttack;
-    //                        cardName.Attack(player, damage);
-    //                        break;
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
     public void RespondCard(Player target, bool cancel)
     {
         if (target != null)
@@ -157,10 +138,10 @@ public class FunctionController : MonoBehaviour
                 // Stop player from using more cards
                 CardClear(target.handCard, 3);
 
-                // Continue current player's turn
-                RoundController currentPlayer = GetRoundFromGOList(playerIndex);
-                currentPlayer.ScanStages();
+                target.Status = 1;
             }
+
+            FinishProcess();
         }
     }
 
@@ -169,13 +150,12 @@ public class FunctionController : MonoBehaviour
         if (source != null)
         {
             Player target = source.isPickTarget;
-
-            PlayerClear(target, 0);
-            PlayerClear(source, 1);
-            source.isNeedCard = false;
+            //source.isNeedCard = false;
 
             target.isAfterTargetted = source.AfterPick1Card;
             source.AfterPick1Card.isProcessing = true;
+
+            Debug.Log("Card used");
 
             cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
             switch (target.isAfterTargetted.Name)
@@ -199,7 +179,13 @@ public class FunctionController : MonoBehaviour
                     break;
             }
 
-            Debug.Log("Card used");
+            if (target == source)
+            {
+                FinishProcess();
+            }
+
+            PlayerClear(target, 0);
+            PlayerClear(source, 1);
         }
     }
 
@@ -226,53 +212,6 @@ public class FunctionController : MonoBehaviour
             else
             {
 
-            }
-        }
-    }
-
-    public void AssignTarget(Player target, Player user)
-    {
-        if (!target.isPickedTarget)
-        {
-            target.isPickedTarget = true;
-            user.isPickTarget = target;
-        }
-        else
-        {
-            target.isPickedTarget = false;
-            user.isPickTarget = null;
-        }
-
-        if (user.isPickTarget != null || user.isPickTargets.Count > 0)
-        {
-            user.isConfirm = true;
-        }
-        else
-        {
-            user.isConfirm = false;
-        }
-    }
-
-    public void AssignTargetAuto(Deck cardUsed)
-    {
-        Player user = cardUsed.isInHand;
-        if (cardUsed != null && user != null)
-        {
-
-            string cardName = cardUsed.Name;
-
-            switch(cardName)
-            {
-                case "Heal":
-                    if (processCase == 1)
-                    {
-                        user.isPickTarget = DyingPlayer();
-                    }
-                    else if (user.stage == 3)
-                    {
-                        user.isPickTarget = user;
-                    }
-                    break;
             }
         }
     }
@@ -317,7 +256,7 @@ public class FunctionController : MonoBehaviour
                 case 1:
                     Debug.Log(DyingPlayer() + " is dead");
                     DyingPlayer().Status = 0;
-                    CheckAlive();
+                    GameEnd();
                     break;
             }
 
@@ -325,6 +264,69 @@ public class FunctionController : MonoBehaviour
         }
 
         ContinueScan();
+    }
+
+    public void FinishProcess()
+    {
+        int alive = CheckAlive();
+        for (int i = 0; i < alive; i++)
+        {
+            if (playerList[i].Status == 1)
+            {
+                // Continue current player's turn
+                RoundController currentPlayer = GetRoundFromGOList(i);
+                currentPlayer.ScanStages();
+            }
+        }
+    }
+
+    public void AssignTarget(Player target, Player user)
+    {
+        if (!target.isPickedTarget)
+        {
+            target.isPickedTarget = true;
+            user.isPickTarget = target;
+        }
+        else
+        {
+            target.isPickedTarget = false;
+            user.isPickTarget = null;
+        }
+
+        if (user.isPickTarget != null || user.isPickTargets.Count > 0)
+        {
+            user.isConfirm = true;
+        }
+        else
+        {
+            user.isConfirm = false;
+        }
+    }
+
+    public void AssignTargetAuto(Deck cardUsed)
+    {
+        Player user = cardUsed.isInHand;
+        if (cardUsed != null && user != null)
+        {
+            string cardName = cardUsed.Name;
+
+            switch (cardName)
+            {
+                case "Heal":
+                    if (processCase == 1)
+                    {
+                        user.isPickTarget = DyingPlayer();
+                    }
+                    else if (user.stage == 3)
+                    {
+                        user.isPickTarget = user;
+                    }
+                    break;
+
+            }
+
+            user.isConfirm = true;
+        }
     }
 
 
@@ -342,10 +344,12 @@ public class FunctionController : MonoBehaviour
             if (deck.isPickCard)
             {
                 owner.AfterPick1Card = deck;
+                owner.isCancel = true;
             }
             else
             {
                 owner.AfterPick1Card = null;
+                owner.isCancel = false;
             }
         }
         else
@@ -353,10 +357,13 @@ public class FunctionController : MonoBehaviour
             if (deck.isPickCard)
             {
                 owner.AfterPickCard.Add(deck);
+                owner.isCancel = true;
             }
             else
             {
                 owner.AfterPickCard.Remove(deck);
+                if (owner.AfterPickCard.Count == 0)
+                    owner.isCancel = false;
             }
         }
 
@@ -393,13 +400,9 @@ public class FunctionController : MonoBehaviour
                 currentPlayer.isConfirm = false;
             }
 
-            if (currentPlayer.AfterPickCard.Count > 0 || currentPlayer.AfterPick1Card != null)
+            if (currentPlayer.isAfterTargetted != null)
             {
                 currentPlayer.isCancel = true;
-            }
-            else
-            {
-                currentPlayer.isCancel = false;
             }
         }
     }
@@ -424,6 +427,7 @@ public class FunctionController : MonoBehaviour
                     deck.isActive = false;
                     deck.isUsable = false;
                     deck.isPickCard = false;
+                    deck.isProcessing = false;
                     break;
                 case 3:
                     deck.isActive = false;
@@ -438,6 +442,19 @@ public class FunctionController : MonoBehaviour
         for (int i = 0; i < list.Count; i++)
         {
             CardClear(list[i], index);
+        }
+        //list.Clear();
+    }
+
+    public void CardClear(Player owner, String name, int index)
+    {
+        List<Deck> list = owner.handCard;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (string.Compare(list[i].Name, name) == 0)
+            {
+                CardClear(list[i], index);
+            }
         }
         //list.Clear();
     }
@@ -656,7 +673,7 @@ public class FunctionController : MonoBehaviour
         getPlayerQueue();
     }
 
-    public void CheckAlive()
+    public int CheckAlive()
     {
         int playerAlive = 0;
         foreach (Player player in playerList)
@@ -667,7 +684,12 @@ public class FunctionController : MonoBehaviour
 
         Debug.Log("There are " + playerAlive + " player alive");
 
-        if (playerAlive == 1)
+        return playerAlive;
+    }
+
+    public void GameEnd()
+    {
+        if (CheckAlive() == 1)
         {
             GameObject EndGame = GameObject.Find("EndGame");
             EndGame.SetActive(true);
@@ -714,8 +736,10 @@ public class FunctionController : MonoBehaviour
         for (int i = 0; i < roomSize; i++)
         {
             string playerName = "Player" + i;
+
             controllerList.Add(GetControllerFromGO(playerName));
             playerList.Add(GetPlayerFromGO(playerName));
+            playerList[i].Status = 1;
         }
     }
 
@@ -859,5 +883,28 @@ public class FunctionController : MonoBehaviour
     //        }
     //    }
     //}
+
+    //public void UseCard(Player source, List<Player> target)
+    //{
+    //    if (source != null && target != null)
+    //    {
+    //        foreach (Player player in target)
+    //        {
+    //            List<Deck> decks = player.AfterPickCard;
+    //            if (decks.Count == 1)
+    //            {
+    //                player.isAfterTargetted = decks[1];
+    //                switch (player.isAfterTargetted.Name)
+    //                {
+    //                    case "Attack":
+    //                        int damage = 1 + source.buff + source.buffAttack;
+    //                        cardName.Attack(player, damage);
+    //                        break;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+
     #endregion
 }

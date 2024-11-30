@@ -70,6 +70,7 @@ public class RoundController : MonoBehaviour
         functionController.CardClear(currentPlayer.AfterPick1Card, 2);
 
         currentPlayer.stage++; // update current stage
+
         if (currentPlayer.stage == 3)
             currentPlayer.limitAttack = 1;
 
@@ -82,6 +83,7 @@ public class RoundController : MonoBehaviour
 
     public void ScanStages()
     {
+        functionController.CardClear(currentPlayer.handCard, 2);
         // Check the currentStage, then act based on it
         switch (currentPlayer.stage)
         {
@@ -114,9 +116,8 @@ public class RoundController : MonoBehaviour
                 {
                     currentPlayer.limitCard = 1;
                     CardTiming(true);
+
                     timingController.StageAction(currentPlayer);
-                    if (currentPlayer.limitAttack == 0)
-                        Debug.Log("You can no longer attack");
                 }
                 break;
             case 4:
@@ -145,6 +146,7 @@ public class RoundController : MonoBehaviour
                 ProceedToNextStage();
                 break;
             case 6:
+                functionController.CardClear(currentPlayer.handCard, 2);
                 break;
             default:
                 break;
@@ -194,60 +196,23 @@ public class RoundController : MonoBehaviour
 
     #endregion
 
+
     #region Buttons
 
     public void btnConfirmActive()
     {
-        List<Deck> pickedList = currentPlayer.AfterPickCard;
-        Deck pickedDeck = currentPlayer.AfterPick1Card;
-
-        if (pickedDeck != null || (pickedList != null && pickedList.Count == currentPlayer.limitCard && pickedList.Count != 0))
-        {
-            if (currentPlayer.stage == 4)
-            {
-                btnConfirm.interactable = true;
-            }
-            else if (currentPlayer.isNeedCard)
-            {
-                if (currentPlayer.isRespond)
-                {
-                    btnConfirm.interactable = true;
-                }
-                else
-                {
-                    if (currentPlayer.isPickTarget == null && (currentPlayer.isPickTargets == null || currentPlayer.isPickTargets.Count == 0))
-                    {
-                        btnConfirm.interactable = false;
-                    }
-                    else
-                    {
-                        btnConfirm.interactable = true;
-                    }
-                }
-            }
-        }
-        else
-        {
+        if (currentPlayer.isConfirm)
+            btnConfirm.interactable = true;
+        else if (!currentPlayer.isConfirm)
             btnConfirm.interactable = false;
-        }
     }
 
     public void btnCancelActive()
     {
-        List<Deck> pickedList = currentPlayer.AfterPickCard;
-        Deck pickedDeck = currentPlayer.AfterPick1Card;
-
-        if (pickedDeck != null 
-            || (pickedList != null && pickedList.Count == currentPlayer.limitCard && pickedList.Count != 0) 
-            || currentPlayer.isRespond
-            || (functionController.processCase != 0 && functionController.playerList[functionController.respondIndex] == currentPlayer))
-        {
+        if (currentPlayer.isCancel)
             btnCancel.interactable = true;
-        }
-        else
-        {
+        else if (!currentPlayer.isCancel)
             btnCancel.interactable = false;
-        }
     }
 
     public void Confirm()
@@ -270,13 +235,18 @@ public class RoundController : MonoBehaviour
                 ProceedToNextStage();
         }
 
-        //functionController.SetInteractability(currentPlayer);
+        functionController.SetInteractability(currentPlayer);
+
+        currentPlayer.isConfirm = false;
+        currentPlayer.isCancel = false;
     }
 
     public void Cancel()
     {
         List<Deck> pickedList = currentPlayer.AfterPickCard;
         Deck pickedDeck = currentPlayer.AfterPick1Card;
+
+        currentPlayer.isCancel = false;
 
         if (pickedDeck != null || (pickedList != null && pickedList.Count != 0))
         {
@@ -291,7 +261,10 @@ public class RoundController : MonoBehaviour
         else
         {
             if (functionController.processCase != 0)
+            {
                 functionController.SkipScan();
+                functionController.CardClear(currentPlayer.handCard, 3);
+            }
             if (currentPlayer.isRespond)
                 functionController.RespondCard(currentPlayer, true);
         }

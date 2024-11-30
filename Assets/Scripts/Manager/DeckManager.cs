@@ -10,9 +10,13 @@ public class DeckManager : MonoBehaviour
     public int countDraw;
     public int countDiscard;
 
+    FunctionController functionController;
+
     // Start is called before the first frame update
     void Start()
     {
+        functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
+
         // Call the method for randomize deck
         LoadRandomDecks();
         ResetDeck();
@@ -27,12 +31,7 @@ public class DeckManager : MonoBehaviour
 
     void ResetDeck()
     {
-        foreach (var deck in drawDecks)
-        {
-            deck.isActive = false;
-            deck.isInHand = null;
-            deck.isPickCard = false;
-        }
+        functionController.CardClear(drawDecks, 0);
     }
 
     #region Deck Generator
@@ -65,10 +64,10 @@ public class DeckManager : MonoBehaviour
         }
 
         // Log the result
-        foreach (Deck deck in drawDecks)
-        {
-            Debug.Log("Added Deck: " + deck.Name);
-        }
+        //foreach (Deck deck in drawDecks)
+        //{
+        //    Debug.Log("Added Deck: " + deck.Name);
+        //}
     }
 
     public void RefillDeck()
