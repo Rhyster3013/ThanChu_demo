@@ -33,6 +33,10 @@ public class FunctionController : MonoBehaviour
         {
             Dying(player, true);
         }
+        else if (processCase != 1)
+        {
+            FinishProcess();
+        }
     }
 
     public void HealHP(Player player)
@@ -67,14 +71,11 @@ public class FunctionController : MonoBehaviour
         }
         else
         {
-            player.Status = 1;
             processCase = 0;
-
             Debug.Log(player + " is rescued");
 
             // Continue current player's turn
-            RoundController currentPlayer = GetRoundFromGOList(playerIndex);
-            currentPlayer.ScanStages();
+            FinishProcess();
         }
     }
 
@@ -114,34 +115,19 @@ public class FunctionController : MonoBehaviour
             Deck cardUsed = target.isAfterTargetted;
             Player user = cardUsed.isInHand;
 
-            if (cancel)
+            switch (cardUsed.Name)
             {
-                switch (cardUsed.Name)
-                {
-                    case "Attack":
+                case "Attack":
+                    if (cancel)
+                    {
                         cardName.Attack(user, target, cardUsed.Damage);
-                        break;
-                }
+                    }
+                    else
+                    {
+                        cardName.Dodge(target);
+                    }
+                    break;
             }
-            else
-            {
-                cardName.Dodge(target);
-                DiscardCard(user);
-            }
-
-            // If the player respond to a card during other's turn
-            if (target.stage == 6)
-            {
-                // isNeedCard and isRespond is disabled
-                PlayerClear(target, 2);
-
-                // Stop player from using more cards
-                CardClear(target.handCard, 3);
-
-                target.Status = 1;
-            }
-
-            FinishProcess();
         }
     }
 
@@ -167,8 +153,6 @@ public class FunctionController : MonoBehaviour
                     Debug.Log("Attacked");
 
                     AfterTargetted(target);
-                    target.Status = 2;
-                    target.isCancel = true;
 
                     // Temporary stop player from using card
                     CardClear(source.handCard, 3);
@@ -179,39 +163,25 @@ public class FunctionController : MonoBehaviour
                     break;
             }
 
-            if (target == source)
-            {
-                FinishProcess();
-            }
-
             PlayerClear(target, 0);
             PlayerClear(source, 1);
         }
     }
 
-    public void AfterPickCard(Deck deck)
+    public void AfterPickCard(Deck deck, Player source)
     {
-        Player source = deck.isInHand;
-
-        if (source != null && source.isNeedCard)
+        if (source != null)
         {
-            if (!source.isRespond)
+            foreach (Player target in playerList)
             {
-                foreach (Player target in playerList)
+                if (target != source)
                 {
-                    if (target != source)
-                    {
-                        target.isPickable = true;
-                    }
-                    else
-                    {
-                        target.isPickable = false;
-                    }
+                    target.isPickable = true;
                 }
-            }
-            else
-            {
-
+                else
+                {
+                    target.isPickable = false;
+                }
             }
         }
     }
@@ -273,6 +243,7 @@ public class FunctionController : MonoBehaviour
         {
             if (playerList[i].Status == 1)
             {
+                DiscardCard(playerList[i]);
                 // Continue current player's turn
                 RoundController currentPlayer = GetRoundFromGOList(i);
                 currentPlayer.ScanStages();
@@ -282,14 +253,14 @@ public class FunctionController : MonoBehaviour
 
     public void AssignTarget(Player target, Player user)
     {
-        if (!target.isPickedTarget)
+        if (!target.isPickedAsTarget)
         {
-            target.isPickedTarget = true;
+            target.isPickedAsTarget = true;
             user.isPickTarget = target;
         }
         else
         {
-            target.isPickedTarget = false;
+            target.isPickedAsTarget = false;
             user.isPickTarget = null;
         }
 
@@ -303,9 +274,8 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void AssignTargetAuto(Deck cardUsed)
+    public void AssignTargetAuto(Deck cardUsed, Player user)
     {
-        Player user = cardUsed.isInHand;
         if (cardUsed != null && user != null)
         {
             string cardName = cardUsed.Name;
@@ -324,8 +294,12 @@ public class FunctionController : MonoBehaviour
                     break;
 
             }
-
             user.isConfirm = true;
+
+            //if ((user.isPickTarget != null && cardUsed.Targets == -1)
+            //    || user.isRespond)
+            //{
+            //}
         }
     }
 
@@ -335,10 +309,8 @@ public class FunctionController : MonoBehaviour
 
     #region Card Activations 
 
-    public void GetPickedCards(Deck deck)
+    public void GetPickedCards(Deck deck, Player owner)
     {
-        Player owner = deck.isInHand;
-
         if (owner.limitCard == 1)
         {
             if (deck.isPickCard)
@@ -368,6 +340,7 @@ public class FunctionController : MonoBehaviour
         }
 
         SetInteractability(owner);
+        ButtonInteractability(owner);
     }
 
     public void SetInteractability(Player currentPlayer)
@@ -386,9 +359,6 @@ public class FunctionController : MonoBehaviour
                         card.isActive = false;
                     }
                 }
-
-                if (currentPlayer.Status == 2)
-                    currentPlayer.isConfirm = true;
             }
             else
             {
@@ -396,16 +366,51 @@ public class FunctionController : MonoBehaviour
                 {
                     deck.isActive = true;
                 }
+            }
+        }
+    }
 
-                currentPlayer.isConfirm = false;
+    public void ButtonInteractability(Player currentPlayer)
+    {
+        if (currentPlayer != null)
+        {
+            if (currentPlayer.handCard != null)
+            {
+                int limit = currentPlayer.limitCard;
+
+                if ((currentPlayer.AfterPickCard.Count == limit)
+                    || (currentPlayer.AfterPick1Card != null))
+                {
+                    if (currentPlayer.isDiscard || currentPlayer.isRespond)
+                    {
+                        currentPlayer.isConfirm = true;
+                    }
+                    else
+                    {
+                        if (currentPlayer.isPickTarget != null)
+                            currentPlayer.isConfirm = true;
+                        else
+                            currentPlayer.isConfirm = false;
+                    }
+                }
+                else
+                {
+                    currentPlayer.isConfirm = false;
+                }
             }
 
-            if (currentPlayer.isAfterTargetted != null)
+            if (currentPlayer.isAfterTargetted != null && processCase != 0 || currentPlayer.isRespond)
             {
                 currentPlayer.isCancel = true;
             }
         }
     }
+
+    #endregion
+
+
+    #region Clear for cards and player
+
 
     public void CardClear(Deck deck, int index)
     {
@@ -467,7 +472,7 @@ public class FunctionController : MonoBehaviour
             {
                 case 0:
                     player.isPickable = false;
-                    player.isPickedTarget = false;
+                    player.isPickedAsTarget = false;
                     break;
                 case 1:
                     player.isPickTarget = null;
@@ -489,6 +494,19 @@ public class FunctionController : MonoBehaviour
             PlayerClear(playerList[i], index);
         }
     }
+
+    public void ClearCardAndTarget(Player currentPlayer)
+    {
+        CardClear(currentPlayer.AfterPickCard, 1);
+        CardClear(currentPlayer.AfterPick1Card, 1);
+
+        currentPlayer.AfterPickCard.Clear();
+        currentPlayer.AfterPick1Card = null;
+
+        PlayerClear(0);
+    }
+
+
     #endregion
 
 
@@ -566,6 +584,12 @@ public class FunctionController : MonoBehaviour
                 CardClear(deck, 0);
             }
         }
+
+        if (player.stage == 4)
+        {
+            GetRoundFromGOList(playerIndex).ProceedToNextStage();
+            player.isDiscard = false;
+        }
     }
 
     #endregion
@@ -614,29 +638,34 @@ public class FunctionController : MonoBehaviour
     {
         if (deck != null)
         {
+            Player owner = deck.isInHand;
+
             if (deck.isPickCard == false && deck.isActive == true)
             {
                 deck.isPickCard = true;
 
-                if (deck.Targets != -1)
+                if (!owner.isDiscard)
                 {
-                    AfterPickCard(deck);
-                }
-                else
-                {
-                    AssignTargetAuto(deck);
+                    if (deck.Targets == -1 || deck.Targets == 0)
+                    {
+                        AssignTargetAuto(deck, owner);
+                    }
+                    else
+                    {
+                        AfterPickCard(deck, owner);
+                    }
                 }
             }
             else
             {
                 deck.isPickCard = false;
-                if (!deck.isInHand.isRespond)
+                if (!deck.isInHand.isRespond || !deck.isInHand.isDiscard)
                 {
                     PlayerClear(0);
                 }
             }
 
-            GetPickedCards(deck);
+            GetPickedCards(deck, owner);
         }
     }
 
@@ -776,6 +805,7 @@ public class FunctionController : MonoBehaviour
             RoundController roundController = currentPlayerGO.GetComponent<RoundController>();
 
             GOList.Add(currentPlayerGO);
+
             if (currentPlayerGO != null)
             {
                 if (playerController == null)
@@ -836,11 +866,11 @@ public class FunctionController : MonoBehaviour
     //{
     //    foreach(Player target in playerList)
     //    {
-    //        if (target.isPickedTarget && isNotPicked(player.isTargetPlayer, target))
+    //        if (target.isPickedAsTarget && isNotPicked(player.isTargetPlayer, target))
     //        {
     //            player.isTargetPlayer.Add(target);
     //        }
-    //        else if (target.isPickedTarget == false)
+    //        else if (target.isPickedAsTarget == false)
     //        {
     //            player.isTargetPlayer.Remove(target);
     //        }

@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
 
     #region UI
 
-    public bool isPickedTarget = false;
+    public bool isPickedAsTarget = false;
     public bool isPickable = false;
 
     #endregion
@@ -39,6 +39,7 @@ public class Player : MonoBehaviour
     // 1. Can dung the do duoc Lenh hoac trong giai doan Ra the
     public bool isNeedCard;	    // Enable usable Cards
     public bool isRespond;
+    public bool isDiscard;
 
     // 3
     public List<Deck> AfterPickCard; // A list of picked cards

@@ -38,10 +38,13 @@ public class TimingController : MonoBehaviour
 
             if (HasNo(player, cardName))
             {
-                Debug.Log("You have no " + cardName + " cards");
+                Debug.Log(player + " have no " + cardName + " cards");
             }
             else
             {
+                player.limitCard = 1;
+                player.isNeedCard = true;
+
                 foreach (Deck deck in list)
                 {
                     if (string.Compare(deck.Name, cardName) == 0)
@@ -66,6 +69,9 @@ public class TimingController : MonoBehaviour
             }
             else
             {
+                player.limitCard = 1;
+                player.isNeedCard = true;
+
                 foreach (Deck deck in list)
                 {
                     if (cardName.Contains(deck.Name))
@@ -88,7 +94,7 @@ public class TimingController : MonoBehaviour
             }
             else
             {
-                Debug.Log("You can no longer attack");
+                Debug.Log(player + " can no longer attack");
             }
 
             if (player.HP < player.MaxHP)
@@ -97,7 +103,7 @@ public class TimingController : MonoBehaviour
             }
             else
             {
-                Debug.Log("You can not heal");
+                Debug.Log(player + " can not heal");
             }
         }
     }
@@ -106,7 +112,7 @@ public class TimingController : MonoBehaviour
     {
         if (target != null)
         {
-            Debug.Log("Please respond with a card");
+            Debug.Log(target + " please respond with a card");
 
             target.isNeedCard = true;
             target.limitCard = 1;

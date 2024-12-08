@@ -35,7 +35,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         {
             if (currentCard.isUsable && currentCard.isActive)
             {
-                Debug.Log(gameObject.name + " pressed!");
+                Debug.Log(currentCard.isInHand + " has pressed " + gameObject.name);
 
                 function.CardUpdate(currentCard);
             }

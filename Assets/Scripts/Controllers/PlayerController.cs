@@ -80,7 +80,7 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
                 currentPlayer.numberOfCard = currentPlayer.handCard.Count;
             }
 
-            if (currentPlayer.isPickedTarget)
+            if (currentPlayer.isPickedAsTarget)
                 outline.enabled = true;
             else
                 outline.enabled = false;
@@ -116,7 +116,7 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
         {
             overlayImage.SetActive(true);
         }
-        if (currentPlayer.isPickable || currentPlayer.isPickedTarget)
+        if (currentPlayer.isPickable || currentPlayer.isPickedAsTarget)
         {
             overlayImage.SetActive(false);
         }

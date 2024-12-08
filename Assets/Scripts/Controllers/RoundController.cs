@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 public class RoundController : MonoBehaviour
 {
@@ -69,6 +70,8 @@ public class RoundController : MonoBehaviour
         functionController.CardClear(currentPlayer.AfterPickCard, 2);
         functionController.CardClear(currentPlayer.AfterPick1Card, 2);
 
+        functionController.ClearCardAndTarget(currentPlayer);
+
         currentPlayer.stage++; // update current stage
 
         if (currentPlayer.stage == 3)
@@ -84,6 +87,7 @@ public class RoundController : MonoBehaviour
     public void ScanStages()
     {
         functionController.CardClear(currentPlayer.handCard, 2);
+
         // Check the currentStage, then act based on it
         switch (currentPlayer.stage)
         {
@@ -127,7 +131,7 @@ public class RoundController : MonoBehaviour
                     {
                         currentPlayer.limitCard = currentPlayer.handCard.Count - currentPlayer.limitHand;
                         Debug.Log("Please discard " + currentPlayer.limitCard + " cards");
-                        currentPlayer.Status = 2;
+                        currentPlayer.isDiscard = true;
 
                         CardTiming(true);
                     }
@@ -146,11 +150,16 @@ public class RoundController : MonoBehaviour
                 ProceedToNextStage();
                 break;
             case 6:
+                // Stop player from using more cards
                 functionController.CardClear(currentPlayer.handCard, 2);
+                // isNeedCard and isRespond is disabled
+                functionController.PlayerClear(currentPlayer, 2);
                 break;
             default:
                 break;
         }
+
+        //functionController.ButtonInteractability(currentPlayer);
     }
 
     #endregion
@@ -217,6 +226,9 @@ public class RoundController : MonoBehaviour
 
     public void Confirm()
     {
+        currentPlayer.isConfirm = false;
+        currentPlayer.isCancel = false;
+
         if (currentPlayer.isNeedCard)
         {
             if (!currentPlayer.isRespond)
@@ -228,17 +240,13 @@ public class RoundController : MonoBehaviour
                 functionController.RespondCard(currentPlayer, false);
             }
         }
-        else
+        else if (currentPlayer.isDiscard)
         {
             functionController.DiscardCard(currentPlayer);
-            if (currentPlayer.stage == 4)
-                ProceedToNextStage();
         }
 
         functionController.SetInteractability(currentPlayer);
-
-        currentPlayer.isConfirm = false;
-        currentPlayer.isCancel = false;
+        functionController.ButtonInteractability(currentPlayer);
     }
 
     public void Cancel()
@@ -250,13 +258,7 @@ public class RoundController : MonoBehaviour
 
         if (pickedDeck != null || (pickedList != null && pickedList.Count != 0))
         {
-            functionController.CardClear(currentPlayer.AfterPickCard, 1);
-            functionController.CardClear(currentPlayer.AfterPick1Card, 1);
-
-            currentPlayer.AfterPickCard.Clear();
-            currentPlayer.AfterPick1Card = null;
-
-            functionController.PlayerClear(0);
+            functionController.ClearCardAndTarget(currentPlayer);
         }
         else
         {
@@ -270,6 +272,7 @@ public class RoundController : MonoBehaviour
         }
 
         functionController.SetInteractability(currentPlayer);
+        functionController.ButtonInteractability(currentPlayer);
     }
 
     #endregion
