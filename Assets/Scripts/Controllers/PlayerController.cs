@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
 
     public void GetCardLimit()
     {
-        currentPlayer.limitHand = currentPlayer.HP;
+        currentPlayer.limitKeep = currentPlayer.HP;
     }
 
     #endregion
@@ -74,10 +74,10 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
     {
         if (currentPlayer != null)
         {
-            if (currentPlayer.handCard != null)
+            if (currentPlayer.cardsInHand != null)
             {
                 // Constantly updating the number of cards in hand
-                currentPlayer.numberOfCard = currentPlayer.handCard.Count;
+                currentPlayer.cardsCount = currentPlayer.cardsInHand.Count;
             }
 
             if (currentPlayer.isPickedAsTarget)
@@ -128,16 +128,16 @@ public class PlayerController : MonoBehaviour, IPointerClickHandler
         {
             Destroy(child.gameObject);
         }
-        // Repeate for each Deck in handCard
-        for (int i = 0; i < currentPlayer.handCard.Count; i++)
+        // Repeate for each Deck in cardsInHand
+        for (int i = 0; i < currentPlayer.cardsInHand.Count; i++)
         {
-            getCardView(currentPlayer.handCard[i], i);
-            currentPlayer.handCard[i].isInHand = currentPlayer;
+            getCardView(currentPlayer.cardsInHand[i], i);
+            currentPlayer.cardsInHand[i].isInHand = currentPlayer;
         }
         //functionController.SetInteractability(currentPlayer);
     }
 
-    public void getCardView(Deck card, int index)
+    public void getCardView(Cards card, int index)
     {
         GameObject cardView = Instantiate(cardPrefab, areaHand);
         cardView.name = "Card" + index;

@@ -11,9 +11,10 @@ using static UnityEngine.GraphicsBuffer;
 public class FunctionController : MonoBehaviour
 {
     int roomSize = 2;
-    public List<GameObject> GOList = new List<GameObject>();
-    public List<PlayerController> controllerList = new List<PlayerController>();
-    public List<Player> playerList = new List<Player>();
+    public List<GameObject> GOList = new();
+    public List<PlayerController> controllerList = new();
+    public List<Player> playerList = new();
+    public List<RoundController> roundList = new();
 
     public int playerIndex = 0;
     public int respondIndex = 0;
@@ -25,7 +26,111 @@ public class FunctionController : MonoBehaviour
 
     #region Gameplay
 
-    public void loseHP(Player player, int amount)
+    public int getDistance(Player source, Player target)
+    {
+        int distance = 0;
+
+        return distance;
+    }
+
+    public void AfterTargetted(Player target)
+    {
+        timingController = GameObject.Find("GameManager").GetComponent<TimingController>();
+        if (target.isAfterTargetted != null && target != null)
+            timingController.IsAfterTargetted(target, target.isAfterTargetted);
+    }
+
+    public void AfterPickCard(Cards deck, Player source)
+    {
+        if (source != null)
+        {
+            foreach (Player target in playerList)
+            {
+                if (target != source)
+                {
+                    target.isPickable = true;
+                }
+                else
+                {
+                    target.isPickable = false;
+                }
+            }
+        }
+    }
+
+    #endregion
+
+
+    #region Use Card and Respond
+
+    public void RespondCard(Player target, bool cancel)
+    {
+        if (target != null)
+        {
+            cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
+            Cards cardUsed = target.isAfterTargetted;
+            Player user = cardUsed.isInHand;
+
+            switch (cardUsed.Name)
+            {
+                case "Attack":
+                    if (cancel)
+                    {
+                        cardName.Attack(user, target, cardUsed.Damage);
+                    }
+                    else
+                    {
+                        cardName.Dodge(target);
+                    }
+                    break;
+            }
+        }
+    }
+
+    public void UseCard(Player source)
+    {
+        if (source != null)
+        {
+            int damage = 1 + source.buffDamage;
+            Player target = source.isPickTarget;
+            //source.isNeedCard = false;
+
+            target.isAfterTargetted = source.AfterPick1Card;
+            source.AfterPick1Card.isProcessing = true;
+
+            Debug.Log("Card used");
+
+            cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
+            switch (target.isAfterTargetted.Name)
+            {
+                case "Attack":
+                    damage += source.buffAttack;
+                    source.limitAttack--;
+                    target.isAfterTargetted.Damage = damage;
+                    Debug.Log("Attacked");
+
+                    AfterTargetted(target);
+
+                    // Temporary stop player from using card
+                    CardClear(source.cardsInHand, 3);
+                    break;
+                case "Heal":
+                    cardName.Heal(source, target);
+                    Debug.Log("Healed");
+                    break;
+            }
+
+            PlayerClear(target, 0);
+            PlayerClear(source, 1);
+        }
+    }
+    
+    #endregion
+
+
+    #region Heal and Damage
+
+    public void LoseHP(Player player, int amount)
     {
         player.HP -= amount;
 
@@ -42,7 +147,7 @@ public class FunctionController : MonoBehaviour
     public void HealHP(Player player)
     {
         player.HP++;
-        
+
         if (processCase == 1)
         {
             if (player.HP <= 0)
@@ -82,9 +187,9 @@ public class FunctionController : MonoBehaviour
     public Player DyingPlayer()
     {
         Player dying = null;
-        foreach(Player player in playerList)
+        foreach (Player player in playerList)
         {
-            if(player != null && player.Status == -1)
+            if (player != null && player.Status == -1)
             {
                 dying = player; break;
             }
@@ -92,100 +197,6 @@ public class FunctionController : MonoBehaviour
 
         return dying;
     }
-
-    public int getDistance(Player source, Player target)
-    {
-        int distance = 0;
-
-        return distance;
-    }
-
-    public void AfterTargetted(Player target)
-    {
-        timingController = GameObject.Find("GameManager").GetComponent<TimingController>();
-        if (target.isAfterTargetted != null && target != null)
-            timingController.IsAfterTargetted(target, target.isAfterTargetted);
-    }
-
-    public void RespondCard(Player target, bool cancel)
-    {
-        if (target != null)
-        {
-            cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
-            Deck cardUsed = target.isAfterTargetted;
-            Player user = cardUsed.isInHand;
-
-            switch (cardUsed.Name)
-            {
-                case "Attack":
-                    if (cancel)
-                    {
-                        cardName.Attack(user, target, cardUsed.Damage);
-                    }
-                    else
-                    {
-                        cardName.Dodge(target);
-                    }
-                    break;
-            }
-        }
-    }
-
-    public void UseCard(Player source)
-    {
-        if (source != null)
-        {
-            Player target = source.isPickTarget;
-            //source.isNeedCard = false;
-
-            target.isAfterTargetted = source.AfterPick1Card;
-            source.AfterPick1Card.isProcessing = true;
-
-            Debug.Log("Card used");
-
-            cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
-            switch (target.isAfterTargetted.Name)
-            {
-                case "Attack":
-                    int damage = 1 + source.buff + source.buffAttack;
-                    source.limitAttack--;
-                    target.isAfterTargetted.Damage = damage;
-                    Debug.Log("Attacked");
-
-                    AfterTargetted(target);
-
-                    // Temporary stop player from using card
-                    CardClear(source.handCard, 3);
-                    break;
-                case "Heal":
-                    cardName.Heal(source, target);
-                    Debug.Log("Healed");
-                    break;
-            }
-
-            PlayerClear(target, 0);
-            PlayerClear(source, 1);
-        }
-    }
-
-    public void AfterPickCard(Deck deck, Player source)
-    {
-        if (source != null)
-        {
-            foreach (Player target in playerList)
-            {
-                if (target != source)
-                {
-                    target.isPickable = true;
-                }
-                else
-                {
-                    target.isPickable = false;
-                }
-            }
-        }
-    }
-
     #endregion
 
 
@@ -274,7 +285,7 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void AssignTargetAuto(Deck cardUsed, Player user)
+    public void AssignTargetAuto(Cards cardUsed, Player user)
     {
         if (cardUsed != null && user != null)
         {
@@ -287,7 +298,7 @@ public class FunctionController : MonoBehaviour
                     {
                         user.isPickTarget = DyingPlayer();
                     }
-                    else if (user.stage == 3)
+                    else if (user.Stage == 3)
                     {
                         user.isPickTarget = user;
                     }
@@ -309,9 +320,9 @@ public class FunctionController : MonoBehaviour
 
     #region Card Activations 
 
-    public void GetPickedCards(Deck deck, Player owner)
+    public void GetPickedCards(Cards deck, Player owner)
     {
-        if (owner.limitCard == 1)
+        if (owner.limitPick == 1)
         {
             if (deck.isPickCard)
             {
@@ -345,14 +356,14 @@ public class FunctionController : MonoBehaviour
 
     public void SetInteractability(Player currentPlayer)
     {
-        if (currentPlayer != null && currentPlayer.handCard != null)
+        if (currentPlayer != null && currentPlayer.cardsInHand != null)
         {
-            int limit = currentPlayer.limitCard;
+            int limit = currentPlayer.limitPick;
 
-            if ((currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count == limit && currentPlayer.limitCard != 1) 
-                || (currentPlayer.AfterPick1Card != null && currentPlayer.limitCard == 1))
+            if ((currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count == limit && currentPlayer.limitPick != 1) 
+                || (currentPlayer.AfterPick1Card != null && currentPlayer.limitPick == 1))
             {
-                foreach (Deck card in currentPlayer.handCard)
+                foreach (Cards card in currentPlayer.cardsInHand)
                 {
                     if (card.isPickCard == false)
                     {
@@ -362,7 +373,7 @@ public class FunctionController : MonoBehaviour
             }
             else
             {
-                foreach (Deck deck in currentPlayer.handCard)
+                foreach (Cards deck in currentPlayer.cardsInHand)
                 {
                     deck.isActive = true;
                 }
@@ -374,9 +385,9 @@ public class FunctionController : MonoBehaviour
     {
         if (currentPlayer != null)
         {
-            if (currentPlayer.handCard != null)
+            if (currentPlayer.cardsInHand != null)
             {
-                int limit = currentPlayer.limitCard;
+                int limit = currentPlayer.limitPick;
 
                 if ((currentPlayer.AfterPickCard.Count == limit)
                     || (currentPlayer.AfterPick1Card != null))
@@ -412,7 +423,7 @@ public class FunctionController : MonoBehaviour
     #region Clear for cards and player
 
 
-    public void CardClear(Deck deck, int index)
+    public void CardClear(Cards deck, int index)
     {
         if (deck != null)
         {
@@ -442,7 +453,7 @@ public class FunctionController : MonoBehaviour
         }
     }
 
-    public void CardClear(List<Deck> list, int index)
+    public void CardClear(List<Cards> list, int index)
     {
         for (int i = 0; i < list.Count; i++)
         {
@@ -453,7 +464,7 @@ public class FunctionController : MonoBehaviour
 
     public void CardClear(Player owner, String name, int index)
     {
-        List<Deck> list = owner.handCard;
+        List<Cards> list = owner.cardsInHand;
         for (int i = 0; i < list.Count; i++)
         {
             if (string.Compare(list[i].Name, name) == 0)
@@ -481,7 +492,7 @@ public class FunctionController : MonoBehaviour
                 case 2:
                     player.isNeedCard = false;
                     player.isRespond = false;
-                    player.limitCard = 0;
+                    player.limitPick = 0;
                     break;
             }
         }
@@ -511,7 +522,7 @@ public class FunctionController : MonoBehaviour
 
 
     #region Discard and Draw
-    public void MoveCard(List<Deck> target, List<Deck> source, Deck card)
+    public void MoveCard(List<Cards> target, List<Cards> source, Cards card)
     {
         if (target != null && source != null && card != null)
         {
@@ -523,12 +534,12 @@ public class FunctionController : MonoBehaviour
     public void OpenFromDeck(Player player, int amount)
     {
         deckManager = GameObject.Find("DrawDeck").GetComponent<DeckManager>();
-        List<Deck> drawDeck = deckManager.drawDecks;
+        List<Cards> drawDeck = deckManager.drawDecks;
 
         for (int i = 0; i < amount; i++)
         {
-            Deck deck = drawDeck[0];
-            player.handCard.Add(drawDeck[0]);
+            Cards deck = drawDeck[0];
+            player.cardsInHand.Add(drawDeck[0]);
             drawDeck.RemoveAt(0);
             deck.isInHand = player;
         }
@@ -540,9 +551,9 @@ public class FunctionController : MonoBehaviour
 
         if (deckManager != null && deckManager.drawDecks != null)
         {
-            List<Deck> drawDeck = deckManager.drawDecks;
+            List<Cards> drawDeck = deckManager.drawDecks;
             //List<Deck> source;
-            if (amount < drawDeck.Count && player.handCard != null)
+            if (amount < drawDeck.Count && player.cardsInHand != null)
             {
                 OpenFromDeck(player, amount );
             }
@@ -565,27 +576,27 @@ public class FunctionController : MonoBehaviour
     {
         DeckManager deckManager = GameObject.Find("DrawDeck").GetComponent<DeckManager>();
 
-        List<Deck> discardDeck = deckManager.discardDecks;
+        List<Cards> discardDeck = deckManager.discardDecks;
 
-        List<Deck> handCards = player.handCard;
+        List<Cards> handCards = player.cardsInHand;
         for (int i = handCards.Count - 1; i >= 0; i--)
         {
-            Deck deck = handCards[i];
+            Cards deck = handCards[i];
             if (player.AfterPickCard.Contains(deck))
             {
-                MoveCard(discardDeck, player.handCard, deck);
+                MoveCard(discardDeck, player.cardsInHand, deck);
                 player.AfterPickCard.Remove(deck);
                 CardClear(deck, 0);
             }
             if (deck == player.AfterPick1Card)
             {
-                MoveCard(discardDeck, player.handCard, deck);
+                MoveCard(discardDeck, player.cardsInHand, deck);
                 player.AfterPick1Card = null;
                 CardClear(deck, 0);
             }
         }
 
-        if (player.stage == 4)
+        if (player.Stage == 4)
         {
             GetRoundFromGOList(playerIndex).ProceedToNextStage();
             player.isDiscard = false;
@@ -597,13 +608,13 @@ public class FunctionController : MonoBehaviour
 
     #region Check duplication in list
 
-    public bool isNotPicked(List<Deck> cards, Deck cardToCheck)
+    public bool isNotPicked(List<Cards> cards, Cards cardToCheck)
     {
         bool check = true;
 
         if (cards != null)
         {
-            foreach (Deck deck in cards)
+            foreach (Cards deck in cards)
             {
                 if (deck.name == cardToCheck.name)
                     check = false;
@@ -634,7 +645,7 @@ public class FunctionController : MonoBehaviour
     #region Update States
 
 
-    public void CardUpdate(Deck deck)
+    public void CardUpdate(Cards deck)
     {
         if (deck != null)
         {
@@ -834,7 +845,7 @@ public class FunctionController : MonoBehaviour
     //    {
     //        Deck pickedDeck = null;
     //        Player target = null;
-    //        if (source.limitCard == 1)
+    //        if (source.limitPick == 1)
     //        {
     //            pickedDeck = pickedCards[0];
     //            if (source.isPickTarget != null)
@@ -879,12 +890,12 @@ public class FunctionController : MonoBehaviour
 
     //public void GetPickedCard(int limit, Player currentPlayer)
     //{
-    //    if (currentPlayer.handCard != null
+    //    if (currentPlayer.cardsInHand != null
     //        && currentPlayer.AfterPickCard != null
     //        && currentPlayer.AfterPickCard.Count < limit
     //        && currentPlayer != null)
     //    {
-    //        foreach (Deck card in currentPlayer.handCard)
+    //        foreach (Deck card in currentPlayer.cardsInHand)
     //        {
     //            if (limit == 1)
     //            {
@@ -927,7 +938,7 @@ public class FunctionController : MonoBehaviour
     //                switch (player.isAfterTargetted.Name)
     //                {
     //                    case "Attack":
-    //                        int damage = 1 + source.buff + source.buffAttack;
+    //                        int damage = 1 + source.buffDamage + source.buffAttack;
     //                        cardName.Attack(player, damage);
     //                        break;
     //                }

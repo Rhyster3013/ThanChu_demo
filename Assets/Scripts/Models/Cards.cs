@@ -5,7 +5,7 @@ using UnityEngine;
 
 //[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Deck", order = 1)]
 [CreateAssetMenu]
-public class Deck : ScriptableObject
+public class Cards : ScriptableObject
 {
     [Range(0, 30)]
     public int Id;

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class CardController : MonoBehaviour, IPointerClickHandler
 {
     //public Deck currentCard { get; set; }
-    public Deck currentCard;
+    public Cards currentCard;
 
     public GameObject overlayImage; // Image overlay
     private Outline outline;        // Card Outline

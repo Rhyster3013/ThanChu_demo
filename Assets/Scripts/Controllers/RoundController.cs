@@ -8,8 +8,6 @@ using static UnityEngine.GraphicsBuffer;
 
 public class RoundController : MonoBehaviour
 {
-    bool isInitialized = false;
-
     [SerializeField] Player currentPlayer;
     [SerializeField] PlayerController playerController;
     [SerializeField] FunctionController functionController;
@@ -42,8 +40,6 @@ public class RoundController : MonoBehaviour
         btnNextStage.gameObject.SetActive(false);
         btnConfirm.onClick.AddListener(Confirm);
         btnCancel.onClick.AddListener(Cancel);
-
-        isInitialized = true;
     }
 
     // Update is called once per frame
@@ -57,7 +53,7 @@ public class RoundController : MonoBehaviour
     #region Stage setter
     public void RoundStart()
     {
-        currentPlayer.stage = 0; // Reset stage
+        currentPlayer.Stage = 0; // Reset Stage
 
         StageDefault();
 
@@ -72,12 +68,12 @@ public class RoundController : MonoBehaviour
 
         functionController.ClearCardAndTarget(currentPlayer);
 
-        currentPlayer.stage++; // update current stage
+        currentPlayer.Stage++; // update current Stage
 
-        if (currentPlayer.stage == 3)
+        if (currentPlayer.Stage == 3)
             currentPlayer.limitAttack = 1;
 
-        current = Stages[currentPlayer.stage];
+        current = Stages[currentPlayer.Stage];
         UpdateStageIndicator(current);
 
         CardTiming(false);
@@ -86,10 +82,10 @@ public class RoundController : MonoBehaviour
 
     public void ScanStages()
     {
-        functionController.CardClear(currentPlayer.handCard, 2);
+        functionController.CardClear(currentPlayer.cardsInHand, 2);
 
         // Check the currentStage, then act based on it
-        switch (currentPlayer.stage)
+        switch (currentPlayer.Stage)
         {
             case 0:
                 if (currentPlayer.isStageStart)
@@ -98,7 +94,7 @@ public class RoundController : MonoBehaviour
                 }
                 else
                 {
-                    currentPlayer.stage = 5;
+                    currentPlayer.Stage = 5;
                     ScanStages();
                 }
                 break;
@@ -118,7 +114,7 @@ public class RoundController : MonoBehaviour
             case 3:
                 if (currentPlayer.isStageAction)
                 {
-                    currentPlayer.limitCard = 1;
+                    currentPlayer.limitPick = 1;
                     CardTiming(true);
 
                     timingController.StageAction(currentPlayer);
@@ -127,10 +123,10 @@ public class RoundController : MonoBehaviour
             case 4:
                 if (currentPlayer.isStageDiscard)
                 {
-                    if (currentPlayer.handCard.Count > currentPlayer.limitHand)
+                    if (currentPlayer.cardsInHand.Count > currentPlayer.limitKeep)
                     {
-                        currentPlayer.limitCard = currentPlayer.handCard.Count - currentPlayer.limitHand;
-                        Debug.Log("Please discard " + currentPlayer.limitCard + " cards");
+                        currentPlayer.limitPick = currentPlayer.cardsInHand.Count - currentPlayer.limitKeep;
+                        Debug.Log("Please discard " + currentPlayer.limitPick + " cards");
                         currentPlayer.isDiscard = true;
 
                         CardTiming(true);
@@ -151,7 +147,7 @@ public class RoundController : MonoBehaviour
                 break;
             case 6:
                 // Stop player from using more cards
-                functionController.CardClear(currentPlayer.handCard, 2);
+                functionController.CardClear(currentPlayer.cardsInHand, 2);
                 // isNeedCard and isRespond is disabled
                 functionController.PlayerClear(currentPlayer, 2);
                 break;
@@ -173,7 +169,7 @@ public class RoundController : MonoBehaviour
             currentPlayer.isNeedCard = active;
             btnNextStage.gameObject.SetActive(active);
 
-            if (currentPlayer.stage == 4)
+            if (currentPlayer.Stage == 4)
             {
                 currentPlayer.isNeedCard = false;
                 timingController.SetActiveAll(currentPlayer, active);
@@ -251,8 +247,8 @@ public class RoundController : MonoBehaviour
 
     public void Cancel()
     {
-        List<Deck> pickedList = currentPlayer.AfterPickCard;
-        Deck pickedDeck = currentPlayer.AfterPick1Card;
+        List<Cards> pickedList = currentPlayer.AfterPickCard;
+        Cards pickedDeck = currentPlayer.AfterPick1Card;
 
         currentPlayer.isCancel = false;
 
@@ -265,7 +261,7 @@ public class RoundController : MonoBehaviour
             if (functionController.processCase != 0)
             {
                 functionController.SkipScan();
-                functionController.CardClear(currentPlayer.handCard, 3);
+                functionController.CardClear(currentPlayer.cardsInHand, 3);
             }
             if (currentPlayer.isRespond)
                 functionController.RespondCard(currentPlayer, true);

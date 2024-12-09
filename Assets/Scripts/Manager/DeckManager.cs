@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
-    public List<Deck> drawDecks = new();
-    public List<Deck> discardDecks = new();
+    public List<Cards> drawDecks = new();
+    public List<Cards> discardDecks = new();
     public int countDraw;
     public int countDiscard;
 
@@ -41,13 +41,13 @@ public class DeckManager : MonoBehaviour
         string[] deckPaths = AssetDatabase.FindAssets("t:Deck", new[] { "Assets/Data" });
 
         // A temporary deck to save all loaded cards
-        List<Deck> allDecks = new List<Deck>();
+        List<Cards> allDecks = new List<Cards>();
 
         // Load every cards from the deckPath
         foreach (string deckGUID in deckPaths)
         {
             string deckPath = AssetDatabase.GUIDToAssetPath(deckGUID);
-            Deck deck = AssetDatabase.LoadAssetAtPath<Deck>(deckPath);
+            Cards deck = AssetDatabase.LoadAssetAtPath<Cards>(deckPath);
 
             if (deck != null)
             {

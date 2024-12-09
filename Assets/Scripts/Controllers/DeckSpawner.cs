@@ -23,11 +23,11 @@ public class DeckSpawner
             string cardPath = "Assets/Data/" + cardName + ".asset";
 
             // Step 1 - Create or reload the assets that store each Deck object.
-            Deck card = AssetDatabase.LoadAssetAtPath<Deck>(cardPath);
+            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
             if (card == null)
             {
                 // Create and save ScriptableObject because it doesn't exist yet
-                card = ScriptableObject.CreateInstance<Deck>();
+                card = ScriptableObject.CreateInstance<Cards>();
                 card.Id = a;
                 card.Name = "Attack";
                 card.Description = "Deal 1 dmg";
@@ -60,11 +60,11 @@ public class DeckSpawner
             string cardPath = "Assets/Data/" + cardName + ".asset";
 
             // Step 1 - Create or reload the assets that store each Deck object.
-            Deck card = AssetDatabase.LoadAssetAtPath<Deck>(cardPath);
+            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
             if (card == null)
             {
                 // Create and save ScriptableObject because it doesn't exist yet
-                card = ScriptableObject.CreateInstance<Deck>();
+                card = ScriptableObject.CreateInstance<Cards>();
                 card.Id = b;
                 card.Name = "Dodge";
                 card.Description = "Evade an Attack";
@@ -91,11 +91,11 @@ public class DeckSpawner
             string cardPath = "Assets/Data/" + cardName + ".asset";
 
             // Step 1 - Create or reload the assets that store each Deck object.
-            Deck card = AssetDatabase.LoadAssetAtPath<Deck>(cardPath);
+            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
             if (card == null)
             {
                 // Create and save ScriptableObject because it doesn't exist yet
-                card = ScriptableObject.CreateInstance<Deck>();
+                card = ScriptableObject.CreateInstance<Cards>();
                 card.Id = c;
                 card.Name = "Heal";
                 card.Description = "Heal 1 HP or Rescue 1 player";

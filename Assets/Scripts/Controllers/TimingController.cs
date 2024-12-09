@@ -16,12 +16,12 @@ public class TimingController : MonoBehaviour
     {
         if (player != null)
         {
-            List<Deck> list = new List<Deck>();
-            list = player.handCard;
+            List<Cards> list = new List<Cards>();
+            list = player.cardsInHand;
 
             if (list != null)
             {
-                foreach (Deck deck in list)
+                foreach (Cards deck in list)
                 {
                     deck.isActive = isActive;
                     deck.isUsable = isActive;
@@ -34,7 +34,7 @@ public class TimingController : MonoBehaviour
     {
         if(player != null)
         {
-            List<Deck> list = player.handCard;
+            List<Cards> list = player.cardsInHand;
 
             if (HasNo(player, cardName))
             {
@@ -42,10 +42,10 @@ public class TimingController : MonoBehaviour
             }
             else
             {
-                player.limitCard = 1;
+                player.limitPick = 1;
                 player.isNeedCard = true;
 
-                foreach (Deck deck in list)
+                foreach (Cards deck in list)
                 {
                     if (string.Compare(deck.Name, cardName) == 0)
                     {
@@ -61,7 +61,7 @@ public class TimingController : MonoBehaviour
     {
         if (player != null)
         {
-            List<Deck> list = player.handCard;
+            List<Cards> list = player.cardsInHand;
 
             if (HasNo(player, cardName))
             {
@@ -69,10 +69,10 @@ public class TimingController : MonoBehaviour
             }
             else
             {
-                player.limitCard = 1;
+                player.limitPick = 1;
                 player.isNeedCard = true;
 
-                foreach (Deck deck in list)
+                foreach (Cards deck in list)
                 {
                     if (cardName.Contains(deck.Name))
                     {
@@ -108,15 +108,15 @@ public class TimingController : MonoBehaviour
         }
     }
 
-    public void IsAfterTargetted(Player target, Deck cardUsed)
+    public void IsAfterTargetted(Player target, Cards cardUsed)
     {
         if (target != null)
         {
             Debug.Log(target + " please respond with a card");
 
             target.isNeedCard = true;
-            target.limitCard = 1;
-            List<Deck> list = target.handCard;
+            target.limitPick = 1;
+            List<Cards> list = target.cardsInHand;
 
             if (list != null)
             {
@@ -135,9 +135,9 @@ public class TimingController : MonoBehaviour
     public bool HasNo(Player player, string cardName)
     {
         bool hasNo = true;
-        List<Deck> handCard = player.handCard;
+        List<Cards> handCard = player.cardsInHand;
 
-        foreach (Deck deck in handCard)
+        foreach (Cards deck in handCard)
         {
             if (deck.Name == cardName)
             {
@@ -151,9 +151,9 @@ public class TimingController : MonoBehaviour
     public bool HasNo(Player player, List<string> cardName)
     {
         bool hasNo = true;
-        List<Deck> handCard = player.handCard;
+        List<Cards> handCard = player.cardsInHand;
 
-        foreach (Deck deck in handCard)
+        foreach (Cards deck in handCard)
         {
             if (cardName.Contains(deck.Name))
             {

@@ -5,10 +5,10 @@ using UnityEngine;
 public class DeckInstance : MonoBehaviour
 {
     // Reference to the ScriptableObject asset
-    public Deck m_Deck;
+    public Cards m_Deck;
 
     //
-    public void Initialize(Deck deck)
+    public void Initialize(Cards deck)
     {
         m_Deck = deck;
     }

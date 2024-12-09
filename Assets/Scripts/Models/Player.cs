@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public int Id { get; set; }         // Player id or number of order
 
     #region UI
 
@@ -12,26 +13,39 @@ public class Player : MonoBehaviour
 
     #endregion
 
+    #region Buttons
+
+    public bool isConfirm;
+    public bool isCancel;
+
+    #endregion
+
+
+    #region Stats
+
     // Initial stats
-    public int Id { get; set; }         // Player id or number of order
-    public int MaxHP { get; set; } = 4;
+    public int MaxHP = 4;
     public int HP = 4;         // Current HP
-    public string Faction { get; set; }
+    public string Faction;
+
+    // Ingame stats
     public int Status = 1;              // -1: Dying;    0: Dead;   1: Active;  2: Discarding or Responding
-    public int stage = 6;               // Current stage of player, as in Draw, Action, Discard,...
+    public int Stage = 6;               // Current Stage of player, as in Draw, Action, Discard,...
 
     // Player limits
-    public int limitHand;
+    public int limitKeep;
     public int limitAttack = 1;
-    public int limitCard = 1;
+    public int limitPick = 1;
 
     // Alternative stats
-    public int buff { get; set; } = 0;
-    public int buffAttack { get; set; } = 0;
+    public int buffDamage = 0;
+    public int buffAttack = 0;
 
     // Player card
-    public List<Deck> handCard;     // List of cards currently in hand
-    public int numberOfCard;        // The number of cards currently in hand
+    public List<Cards> cardsInHand;     // List of cards currently in hand
+    public int cardsCount;        // The number of cards currently in hand
+
+    #endregion
 
     #region Timing
 
@@ -42,24 +56,24 @@ public class Player : MonoBehaviour
     public bool isDiscard;
 
     // 3
-    public List<Deck> AfterPickCard; // A list of picked cards
-    public Deck AfterPick1Card;
+    public List<Cards> AfterPickCard; // A list of picked cards
+    public Cards AfterPick1Card;
 
     // 4 Show available targets and choose the amount of target as needed/available
     public List<Player> isPickTargets;
     public Player isPickTarget;
 
     // 5
-    public Deck isUseCard;         // Confirm Using card
+    public Cards isUseCard;         // Confirm Using card
 
     // 6
     public List<Player> isTargetPlayer;	    // When targetting
     // 7
-    public Deck isTargetted;	        // When being targetted, mostly passively
+    public Cards isTargetted;	        // When being targetted, mostly passively
     // 8
     public bool isAfterTargetPlayer;	// After targetting
     // 9
-    public Deck isAfterTargetted;      // After being targetted, mostly passively
+    public Cards isAfterTargetted;      // After being targetted, mostly passively
 
     // Stage timing
     public bool isStageStart { get; set; } = true;      // Indicates if the player has a round
@@ -68,13 +82,6 @@ public class Player : MonoBehaviour
     public bool isStageAction { get; set; } = true;     // If the player can use cards in their turn
     public bool isStageDiscard { get; set; } = true;    // If the player needs to discard cards
     public bool isStageEnd { get; set; } = true;        // Indicates if it is about to begin another player's turn
-
-    #endregion
-
-    #region Buttons
-
-    public bool isConfirm;
-    public bool isCancel;
 
     #endregion
 }

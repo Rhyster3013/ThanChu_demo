@@ -14,7 +14,7 @@ public class CardFunctions : MonoBehaviour
     public void Attack(Player user, Player target, int damage)
     {
         Debug.Log("The Attack has dealt damage");
-        func.loseHP(target, damage);
+        func.LoseHP(target, damage);
 
         target.isAfterTargetted = null;
     }
