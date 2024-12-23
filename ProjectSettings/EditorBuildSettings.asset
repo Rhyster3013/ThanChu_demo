@@ -6,8 +6,22 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/Scenes/MainScreen.unity
+    guid: 5fd92e6c4e7428b478fff240c9aec80b
+  - enabled: 1
+    path: Assets/Scenes/JoinRoom.unity
+    guid: a0714991513395046a118e41552b4e65
+  - enabled: 1
+    path: Assets/Scenes/CreateRoom.unity
+    guid: 018e9b614cb390941ac6a01241fe3942
+  - enabled: 0
+    path: Assets/Scenes/GameMatch.unity
+    guid: 3fc8acdd13e6c734bafef6554d6fdbcd
+  - enabled: 1
+    path: Assets/Scenes/PickCharacter.unity
+    guid: 8aa3bc83382e9934293d2572c99e2ad8
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: aef531b419f4e054596fefb2f6613688, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 6a4ea2ccad2b832438dd27b012f86b59, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 03bf0e80857ae0a4ebe1b6e2d253faf6, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 9f03f47233d89b541aefb9bfdfddc4ef, type: 2}
