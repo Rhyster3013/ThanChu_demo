@@ -55,7 +55,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         {
             setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
             setName(gameObject, currentCard.Name);
-            SetImage(gameObject, currentCard.Name);
+            //SetImage(gameObject, currentCard.Name);
 
             SetCardOverlay();
             ActiveCard();

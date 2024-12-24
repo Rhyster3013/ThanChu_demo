@@ -24,7 +24,7 @@ public class LobbyManager : MonoBehaviour
 
     private void Update()
     {
-        //HandleLobbyHB();
+        HandleLobbyHB();
         //HandlePoolForLobby();
         //HandlRefresh();
     }
