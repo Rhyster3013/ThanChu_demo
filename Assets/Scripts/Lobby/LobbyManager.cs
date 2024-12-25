@@ -20,6 +20,8 @@ public class LobbyManager : MonoBehaviour
     private List<PlayerInfo> playerList = new List<PlayerInfo>();
     private float hbTimer;
 
+    public Dictionary<ulong, Info> serverPlayerData = new Dictionary<ulong, Info>();
+
     #region Keep the server up
 
     private void Update()
@@ -270,64 +272,12 @@ public class LobbyManager : MonoBehaviour
 
     #region Start Game
 
-    public async void StartGame()
+    public void StartGame()
     {
         try
         {
             //HandlePoolForLobby();
             //hostLobby = LobbyInstance.Instance.CurrentLobby;
-
-            HandlRefresh();
-            hostLobby = joinedLobby;
-            Debug.Log("Lobby refreshed before starting");
-
-            if (hostLobby == null)
-            {
-                Debug.Log("Lobby is null!");
-                return;
-            }
-
-            // Gán số thứ tự ngẫu nhiên từ 1 đến n cho từng người chơi
-            List<int> orders = GenerateRandomOrder(hostLobby.Players.Count);
-            int index = 0;
-            Debug.Log("Player orders: " + orders.Count);
-
-            //foreach (Player player in hostLobby.Players)
-            //{
-            //    await LobbyService.Instance.UpdatePlayerAsync(hostLobby.Id, player.Id, new UpdatePlayerOptions
-            //    {
-            //        Data = new Dictionary<string, PlayerDataObject>
-            //        {
-            //            { "Order", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, orders[index].ToString()) }
-            //        }
-            //    });
-
-            //    index++;
-            //}
-
-            foreach (Player player in hostLobby.Players)
-            {
-                if (!playerIdToClientId.ContainsKey(player.Id))
-                {
-                    Debug.LogError($"No ClientId mapped for PlayerId: {player.Id}");
-                    continue;
-                }
-
-                ulong clientId = GetClientIdFromPlayerId(player.Id);
-
-                var clientRpcParams = new ClientRpcParams
-                {
-                    Send = new ClientRpcSendParams
-                    {
-                        TargetClientIds = new[] { clientId }
-                    }
-                };
-
-                UpdatePlayerOrderClientRpc(orders[index], clientRpcParams);
-                index++;
-            }
-
-            Debug.Log("Assigned orders to all players."); 
             Debug.Log("IsServer: " + NetworkManager.Singleton.IsServer);
             Debug.Log("IsHost: " + NetworkManager.Singleton.IsHost);
 
@@ -347,48 +297,77 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    private List<int> GenerateRandomOrder(int count)
+    public async void AssignOrder()
     {
-        List<int> orders = new List<int>();
-        for (int i = 1; i <= count; i++) orders.Add(i);
-        ShuffleList(orders);
-        return orders;
+        Lobby lobby = await LobbyService.Instance.GetLobbyAsync(LobbyInstance.Instance.LobbyID);
+        hostLobby = lobby;
+        Debug.Log("Lobby refreshed successfully. Id is: " + hostLobby.Id);
+        Debug.Log("Lobby refreshed before starting");
+
+        if (hostLobby == null)
+        {
+            Debug.Log("Lobby is null!");
+            return;
+        }
+
+        // Gán số thứ tự ngẫu nhiên từ 1 đến n cho từng người chơi
+        List<int> orders = GenerateRandomOrder(hostLobby.Players.Count);
+        int index = 0;
+        Debug.Log("Player orders: " + orders.Count);
+
+        foreach (Player player in hostLobby.Players)
+        {
+            ulong clientId = RelayManager.Instance.GetClientIdFromPlayerId(player.Id);
+
+            // Gửi thông tin đến Server để cập nhật
+            AssignPlayerDataServerRpc(clientId, player.Data["PlayerName"].Value, orders[index], false);
+
+            Debug.Log($"Assigned Order {orders[index]} to Player {player.Data["PlayerName"].Value}");
+            index++;
+        }
+
+        Debug.Log("Assigned orders to all players.");
     }
 
-    private void ShuffleList(List<int> list)
+    public string UpdatePlayerListUI()
     {
-        for (int i = list.Count - 1; i > 0; i--)
+        string playerListText = "Player List:\n";
+
+        foreach (var player in serverPlayerData.Values)
         {
-            int j = UnityEngine.Random.Range(0, i + 1);
-            int temp = list[i];
-            list[i] = list[j];
-            list[j] = temp;
+            Debug.Log($"Player {player.PlayerName}: Order = {player.Order}, Ready = {player.IsReady}");
+            playerListText += $"Order: {player.Order} | Name: {player.PlayerName} | Ready: {player.IsReady}\n";
         }
+
+        return playerListText;
     }
 
     #endregion
 
-    #region
+    #region Netcode
 
-    private Dictionary<string, ulong> playerIdToClientId = new Dictionary<string, ulong>();
-
-    public void MapPlayerIdToClientId(string playerId, ulong clientId)
+    [ServerRpc(RequireOwnership = false)]
+    public void AssignPlayerDataServerRpc(ulong clientId, string playerName, int order, bool isReady)
     {
-        if (!playerIdToClientId.ContainsKey(playerId))
+        if (!serverPlayerData.ContainsKey(clientId))
         {
-            playerIdToClientId[playerId] = clientId;
+            serverPlayerData[clientId] = new Info(order, playerName, isReady);
+            Debug.Log($"Player {playerName} added to server with Order {order}.");
         }
     }
 
-    public ulong GetClientIdFromPlayerId(string playerId)
+    [ServerRpc(RequireOwnership = false)]
+    public void AssignPlayerOrderServerRpc(ulong clientId, int order)
     {
-        if (playerIdToClientId.TryGetValue(playerId, out ulong clientId))
+        if (serverPlayerData.ContainsKey(clientId))
         {
-            return clientId;
+            serverPlayerData[clientId].Order = order;
+            Debug.Log($"Order {order} assigned to Client {clientId}");
         }
-
-        Debug.LogError($"No ClientId found for PlayerId: {playerId}");
-        return 0; // Trả về giá trị mặc định, cần xử lý tốt hơn tùy trường hợp.
+        else
+        {
+            Debug.LogWarning($"Client {clientId} not found in serverPlayerData.");
+        }
     }
 
     [ClientRpc]
@@ -472,6 +451,25 @@ public class LobbyManager : MonoBehaviour
         }
 
         return info;
+    }
+
+    private List<int> GenerateRandomOrder(int count)
+    {
+        List<int> orders = new List<int>();
+        for (int i = 1; i <= count; i++) orders.Add(i);
+        ShuffleList(orders);
+        return orders;
+    }
+
+    private void ShuffleList(List<int> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            int temp = list[i];
+            list[i] = list[j];
+            list[j] = temp;
+        }
     }
 
 

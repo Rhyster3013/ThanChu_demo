@@ -18,6 +18,8 @@ public class RelayManager : MonoBehaviour
     private Allocation relayAllocation; // Thông tin server Relay cho Host
     private JoinAllocation joinAllocation; // Thông tin kết nối Relay cho Client
 
+    private Dictionary<string, ulong> playerIdToClientId = new Dictionary<string, ulong>();
+
 
     private void Awake()
     {
@@ -71,6 +73,8 @@ public class RelayManager : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
             LobbyInstance.Instance.PlayerLobbyID = AuthenticationService.Instance.PlayerId;
+
+            MapPlayerIdToClientId(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId);
             Debug.Log("Netcode Host started.");
 
             return lobby.LobbyCode; // Trả về Lobby Join Code
@@ -130,6 +134,7 @@ public class RelayManager : MonoBehaviour
                     // Start Netcode Client
                     NetworkManager.Singleton.StartClient();
                 LobbyInstance.Instance.PlayerLobbyID = AuthenticationService.Instance.PlayerId;
+                MapPlayerIdToClientId(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId);
                 Debug.Log("Netcode Client started.");
                 }
                 else
@@ -146,6 +151,37 @@ public class RelayManager : MonoBehaviour
         catch (System.Exception e)
         {
             Debug.LogError($"Error joining lobby and relay: {e.Message}");
+        }
+    }
+
+    #endregion
+
+
+    #region Netcode Rpc
+
+    public ulong GetClientIdFromPlayerId(string playerId)
+    {
+        if (playerIdToClientId.TryGetValue(playerId, out ulong clientId))
+        {
+            return clientId;
+        }
+
+        Debug.LogError($"No ClientId found for PlayerId: {playerId}");
+        return 0; // Trả về giá trị mặc định, cần xử lý tốt hơn tùy trường hợp.
+    }
+
+    public void MapPlayerIdToClientId(string playerId, ulong clientId)
+    {
+        try
+        {
+            if (!playerIdToClientId.ContainsKey(playerId))
+            {
+                playerIdToClientId[playerId] = clientId;
+            }
+            Debug.Log("Player " + playerId + " mapped for clientID " + clientId);
+        }catch (System.Exception e)
+        {
+            Debug.LogException(e);
         }
     }
 

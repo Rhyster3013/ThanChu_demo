@@ -641,10 +641,10 @@ RectTransform:
   - {fileID: 1129121742}
   m_Father: {fileID: 717889011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1979, y: -426}
-  m_SizeDelta: {x: 356.3015, y: 113.3972}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -181, y: 114}
+  m_SizeDelta: {x: 356.3015, y: 113.39722}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &490541661
 MonoBehaviour:
@@ -761,10 +761,10 @@ RectTransform:
   - {fileID: 2117386735}
   m_Father: {fileID: 717889011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -208.5}
-  m_SizeDelta: {x: 2160, y: 663}
+  m_SizeDelta: {x: 0, y: -417}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &615492696
 GameObject:
@@ -1457,6 +1457,8 @@ MonoBehaviour:
   playerInfoPrefab: {fileID: 186306012513555193, guid: 5badb079577a29946bea85357bc9d4dd, type: 3}
   playerInfoContainer: {fileID: 2105622022}
   btnReady: {fileID: 490541661}
+  btnSend: {fileID: 2117386736}
+  playerListText: {fileID: 2126489539}
 --- !u!114 &1676448476
 MonoBehaviour:
   m_ObjectHideFlags: 0

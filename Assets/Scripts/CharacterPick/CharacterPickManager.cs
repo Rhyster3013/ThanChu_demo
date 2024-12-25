@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,8 @@ public class CharacterPickManager : NetworkBehaviour
     public Transform playerInfoContainer;
 
     public Button btnReady;
+    public Button btnSend;
+    public TextMeshProUGUI playerListText;
 
     private List<int> availableOrders = new List<int>();
     private LobbyManager lobbyManager;
@@ -25,11 +28,16 @@ public class CharacterPickManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        lobbyManager = gameObject.GetComponent<LobbyManager>();
+        btnSend.onClick.AddListener(UpdatePlayerListClientRpc);
+
         if (IsServer)
         {
             // Khởi tạo thứ tự chơi khi có đủ người chơi
-            InitializePlayOrder();
-            SpawnPlayerLobbyInfoObjects();
+            //InitializePlayOrder();
+            //SpawnPlayerLobbyInfoObjects();
+            lobbyManager.AssignOrder();
+            UpdatePlayerListClientRpc();
         }
         //lobbyManager = GetComponent<LobbyManager>();
         //playerList.Add(await lobbyManager.GetPlayerInfo(NetworkManager.Singleton.LocalClientId));
@@ -118,5 +126,14 @@ public class CharacterPickManager : NetworkBehaviour
             list[j] = temp;
         }
     }
+
+
+    [ClientRpc]
+    public void UpdatePlayerListClientRpc()
+    {
+        playerListText.text = lobbyManager.UpdatePlayerListUI();
+    }
+
+
 
 }
