@@ -238,6 +238,12 @@ public class LobbyManager : MonoBehaviour
     public string PrintPlayers()
     {
         HandlRefresh();
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            Debug.Log($"Client ID: {client.ClientId}");
+        }
+
         if (joinedLobby != null)
         {
             string players = "Players in Room " + joinedLobby.Name + " :\n";
@@ -302,7 +308,6 @@ public class LobbyManager : MonoBehaviour
         Lobby lobby = await LobbyService.Instance.GetLobbyAsync(LobbyInstance.Instance.LobbyID);
         hostLobby = lobby;
         Debug.Log("Lobby refreshed successfully. Id is: " + hostLobby.Id);
-        Debug.Log("Lobby refreshed before starting");
 
         if (hostLobby == null)
         {
@@ -313,17 +318,26 @@ public class LobbyManager : MonoBehaviour
         // Gán số thứ tự ngẫu nhiên từ 1 đến n cho từng người chơi
         List<int> orders = GenerateRandomOrder(hostLobby.Players.Count);
         int index = 0;
-        Debug.Log("Player orders: " + orders.Count);
+        
+        foreach (Player player in hostLobby.Players)
+        {
+            RelayManager.Instance.MapPlayerIdToClientId(player.Id, ulong.Parse(player.Data["ClientId"].Value));
+        }
 
         foreach (Player player in hostLobby.Players)
         {
             ulong clientId = RelayManager.Instance.GetClientIdFromPlayerId(player.Id);
 
-            // Gửi thông tin đến Server để cập nhật
-            AssignPlayerDataServerRpc(clientId, player.Data["PlayerName"].Value, orders[index], false);
-
-            Debug.Log($"Assigned Order {orders[index]} to Player {player.Data["PlayerName"].Value}");
-            index++;
+            if (clientId == ulong.MaxValue)
+            {
+                Debug.LogError("Cannot find this Player id");
+            }
+            else
+            {
+                // Gửi thông tin đến Server để cập nhật
+                AssignPlayerDataServerRpc(clientId, player.Data["PlayerName"].Value, orders[index], false);
+                index++;
+            }
         }
 
         Debug.Log("Assigned orders to all players.");
@@ -343,6 +357,7 @@ public class LobbyManager : MonoBehaviour
     }
 
     #endregion
+
 
     #region Netcode
 
@@ -458,6 +473,11 @@ public class LobbyManager : MonoBehaviour
         List<int> orders = new List<int>();
         for (int i = 1; i <= count; i++) orders.Add(i);
         ShuffleList(orders);
+
+        foreach (var order in orders)
+        {
+            Debug.Log(order.ToString());
+        }
         return orders;
     }
 

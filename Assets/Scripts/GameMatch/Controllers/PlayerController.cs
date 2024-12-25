@@ -9,14 +9,10 @@ using static Unity.VisualScripting.Member;
 
 public class PlayerController : MonoBehaviour, IPointerClickHandler
 {
-    //[SerializeField] Player currentPlayer;
     public PlayerModel currentPlayer;
     FunctionController functionController;
 
     GameManager gameManager;
-
-    [SerializeField] bool needCard = false;
-    //[SerializeField] GameObject playerGO;
 
     public Transform areaHand;      // The GO Canvas in which Card prefabs will be generate into
     public GameObject cardPrefab;   // The Card prefab to view cards

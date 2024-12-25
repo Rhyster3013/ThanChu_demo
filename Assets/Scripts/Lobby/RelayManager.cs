@@ -10,6 +10,7 @@ using Unity.Networking.Transport.Relay;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
+using System;
 
 public class RelayManager : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class RelayManager : MonoBehaviour
     private Allocation relayAllocation; // Thông tin server Relay cho Host
     private JoinAllocation joinAllocation; // Thông tin kết nối Relay cho Client
 
-    private Dictionary<string, ulong> playerIdToClientId = new Dictionary<string, ulong>();
+    public Dictionary<string, ulong> playerIdToClientId = new Dictionary<string, ulong>();
 
 
     private void Awake()
@@ -71,11 +72,13 @@ public class RelayManager : MonoBehaviour
             // Format Unity Transport and start Host
             RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+
             NetworkManager.Singleton.StartHost();
+            StartServerOrHost();
             LobbyInstance.Instance.PlayerLobbyID = AuthenticationService.Instance.PlayerId;
 
-            MapPlayerIdToClientId(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId);
-            Debug.Log("Netcode Host started.");
+            await AddClientIdToPlayer(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId.ToString());
+            Debug.Log("Netcode Host started. With id = " + NetworkManager.Singleton.LocalClientId.ToString());
 
             return lobby.LobbyCode; // Trả về Lobby Join Code
         }
@@ -133,9 +136,17 @@ public class RelayManager : MonoBehaviour
 
                     // Start Netcode Client
                     NetworkManager.Singleton.StartClient();
+                StartServerOrHost();
+
+                if (!NetworkManager.Singleton.IsClient)
+                {
+                    Debug.LogError("Client failed to connect to the server.");
+                }
+
                 LobbyInstance.Instance.PlayerLobbyID = AuthenticationService.Instance.PlayerId;
-                MapPlayerIdToClientId(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId);
-                Debug.Log("Netcode Client started.");
+
+                await AddClientIdToPlayer(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId.ToString());
+                Debug.Log("Netcode Client started. With id = " + NetworkManager.Singleton.LocalClientId.ToString());
                 }
                 else
                 {
@@ -163,11 +174,14 @@ public class RelayManager : MonoBehaviour
     {
         if (playerIdToClientId.TryGetValue(playerId, out ulong clientId))
         {
+            Debug.Log($"{clientId} mapped from PlayerId: {playerId}");
             return clientId;
         }
-
-        Debug.LogError($"No ClientId found for PlayerId: {playerId}");
-        return 0; // Trả về giá trị mặc định, cần xử lý tốt hơn tùy trường hợp.
+        else
+        {
+            Debug.LogError($"No ClientId found for PlayerId: {playerId}");
+            return ulong.MaxValue; // Trả về giá trị mặc định, cần xử lý tốt hơn tùy trường hợp.
+        }
     }
 
     public void MapPlayerIdToClientId(string playerId, ulong clientId)
@@ -188,8 +202,82 @@ public class RelayManager : MonoBehaviour
     #endregion
 
 
+    #region Call back
+
+    public void StartServerOrHost()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            // Bắt đầu host/server
+            if (NetworkManager.Singleton.StartHost())
+            {
+                Debug.Log("Host started.");
+            }
+            else if (NetworkManager.Singleton.StartServer())
+            {
+                Debug.Log("Server started.");
+            }
+
+            // Đăng ký callback
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        }
+    }
+
+    private void OnClientConnected(ulong clientId)
+    {
+        Debug.Log($"Client connected: {clientId}");
+    }
+
+    private void OnClientDisconnected(ulong clientId)
+    {
+        Debug.Log($"Client disconnected: {clientId}");
+    }
+
+    void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+        }
+    }
+
+    #endregion
+
+
     #region Other
 
+
+    public async Task AddClientIdToPlayer(string playerId, string clientId)
+    {
+        try
+        {
+            if (LobbyInstance.Instance.LobbyID == null)
+            {
+                Debug.LogError("Lobby is null. Cannot update player data.");
+                return;
+            }
+
+            await LobbyService.Instance.UpdatePlayerAsync(
+                LobbyInstance.Instance.LobbyID,
+                playerId,
+                new UpdatePlayerOptions
+                {
+                    Data = new Dictionary<string, PlayerDataObject>
+                    {
+                    { "ClientId", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, clientId) }
+                    }
+                }
+            );
+
+            Debug.Log($"Successfully added ClientId for Player {playerId}: {clientId}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to add ClientId: {e.Message}");
+        }
+    }
 
     // Kiểm tra xem lobbyManager đã đầy chưa
     public async Task<bool> IsLobbyFullAsync(string joinCode)
