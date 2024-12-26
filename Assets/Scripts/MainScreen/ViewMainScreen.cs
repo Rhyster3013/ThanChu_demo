@@ -24,10 +24,12 @@ public class ViewMainScreen : MonoBehaviour
     private void CreateOffline()
     {
         SceneManager.LoadScene("GameMatch");
+        RoomSizeInstance.Instance.online = false;
     }
 
     private void CreateOnline()
     {
         SceneManager.LoadScene("JoinRoom");
+        RoomSizeInstance.Instance.online = true;
     }
 }

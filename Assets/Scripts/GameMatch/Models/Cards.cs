@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Deck", order = 1)]
-[CreateAssetMenu]
+[System.Serializable]
 public class Cards : ScriptableObject
 {
     [Range(0, 30)]
@@ -27,5 +27,17 @@ public class Cards : ScriptableObject
     public bool isProcessing;
 
     // 2
-    public bool isPickCard;	        // Choose Cards that are needed/available	// Just a confirmation step
+    public bool isPickCard;         // Choose Cards that are needed/available	// Just a confirmation step
+
+    public Cards(int id, string name, string description, int number, string color, string element, int targets, int damage)
+    {
+        Id = id;
+        Name = name;
+        Description = description;
+        Number = number;
+        Color = color;
+        Element = element;
+        Targets = targets;
+        Damage = damage;
+    }
 }

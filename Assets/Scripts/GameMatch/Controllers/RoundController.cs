@@ -16,6 +16,7 @@ public class RoundController : MonoBehaviour
     Transform buttons;
     TextMeshProUGUI txbStageIndicator;
     public Button btnNextStage;
+    public Button btnEnemyAction;
     Button btnConfirm;
     Button btnCancel;
 
@@ -41,6 +42,12 @@ public class RoundController : MonoBehaviour
             btnConfirm.onClick.AddListener(Confirm);
             btnCancel.onClick.AddListener(Cancel);
         }
+
+        if (gameObject.name == "Enemy20")
+        {
+            btnEnemyAction = transform.Find("BtnEnemyAction").GetComponent<Button>();
+        }
+
         currentPlayer = GetComponent<PlayerModel>();
         playerController = GetComponent<PlayerController>();
         functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
@@ -205,6 +212,11 @@ public class RoundController : MonoBehaviour
             btnCancelActive();
             btnConfirmActive();
         }
+
+        if (gameObject.name == "Enemy20")
+        {
+            btnActionActive();
+        }
     }
 
     #endregion
@@ -277,6 +289,54 @@ public class RoundController : MonoBehaviour
 
         functionController.SetInteractability(currentPlayer);
         functionController.ButtonInteractability(currentPlayer);
+    }
+
+    #endregion
+
+
+    #region Offline
+
+    public void btnActionActive()
+    {
+        if (currentPlayer.isConfirm || currentPlayer.isCancel)
+            btnEnemyAction.interactable = true;
+        else if (!currentPlayer.isConfirm || currentPlayer.isCancel)
+            btnEnemyAction.interactable = false;
+    }
+
+    public void EnemyAction()
+    {
+        if (currentPlayer.Stage == 3)
+        {
+            if (currentPlayer.limitAttack != 0)
+            {
+                if (!timingController.HasNo(currentPlayer, "Attack"))
+                {
+                    PickFirstCard("Attack");
+                    functionController.UseCard(currentPlayer);
+                }
+            }
+        }
+    }
+
+    public void PickFirstCard(string cardsName)
+    {
+        foreach (Cards cards in currentPlayer.cardsInHand)
+        {
+            if(cards.Name == cardsName && cards.isActive)
+            {
+                cards.isPickCard = true;
+                break;
+            }
+        }
+    }
+
+    public void AutoTarget()
+    {
+        PlayerModel target = GameObject.Find("Player").GetComponent<PlayerModel>();
+
+        target.isPickedAsTarget = true;
+        currentPlayer.isPickTarget = target;
     }
 
     #endregion

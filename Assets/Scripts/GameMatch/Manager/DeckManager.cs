@@ -37,37 +37,49 @@ public class DeckManager : MonoBehaviour
     #region Deck Generator
     void LoadRandomDecks()
     {
-        // Chỉ chạy đoạn mã này trong Editor
-#if UNITY_EDITOR
-        // Get every asset files in Assets/Data
-        string[] deckPaths = AssetDatabase.FindAssets("t:Cards", new[] { "Assets/Data" });
-        Debug.Log("Begin load deck" + deckPaths);
+        TextAsset jsonFile = Resources.Load<TextAsset>("DeckData");
 
-        // A temporary deck to save all loaded cards
-        List<Cards> allDecks = new List<Cards>();
-
-        // Load every card from the deckPath
-        foreach (string deckGUID in deckPaths)
+        if (jsonFile != null)
         {
-            string deckPath = AssetDatabase.GUIDToAssetPath(deckGUID);
-            Cards deck = AssetDatabase.LoadAssetAtPath<Cards>(deckPath);
+            string json = jsonFile.text;
+            DeckData deckData = JsonUtility.FromJson<DeckData>(json);
 
-            if (deck != null)
+            // A temporary deck to save all loaded cards
+            List<Cards> allDecks = new List<Cards>();
+
+            if (deckData != null && deckData.cards.Count > 0)
             {
-                allDecks.Add(deck);
-            }
-        }
+                foreach (CardData cardData in deckData.cards)
+                {
+                    Cards card = ScriptableObject.CreateInstance<Cards>();
 
-        // Shuffle the allDecks randomly and add them to the Deck
-        while (drawDecks.Count < 30 && allDecks.Count > 0)
-        {
-            int randomIndex = Random.Range(0, allDecks.Count);
-            drawDecks.Add(allDecks[randomIndex]);
-            allDecks.RemoveAt(randomIndex); // Remove the added cards to prevent repetition
+                    card.Id = cardData.Id;
+                    card.Name = cardData.Name;
+                    card.Description = cardData.Description;
+                    card.Number = cardData.Number;
+                    card.Element = cardData.Element;
+                    card.Color = cardData.Color;
+                    card.Damage = cardData.Damage;
+                    card.Targets = cardData.Targets;
+
+                    drawDecks.Add(card);
+                }
+            }
+
+            // Shuffle the allDecks randomly and add them to the Deck
+            while (drawDecks.Count < 30 && allDecks.Count > 0)
+            {
+                int randomIndex = Random.Range(0, allDecks.Count);
+                drawDecks.Add(allDecks[randomIndex]);
+                allDecks.RemoveAt(randomIndex); // Remove the added cards to prevent repetition
+            }
+
+            Debug.Log("Loaded decks from Resources.");
         }
-#else
-            Debug.LogError("LoadRandomDecks is only available in the Unity Editor.");
-#endif
+        else
+        {
+            Debug.LogError("DeckData.json not found in Resources.");
+        }
     }
 
     public void RefillDeck()

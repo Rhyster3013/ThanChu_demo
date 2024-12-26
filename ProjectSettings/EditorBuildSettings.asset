@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CreateRoom.unity
     guid: 018e9b614cb390941ac6a01241fe3942
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/GameMatch.unity
     guid: 3fc8acdd13e6c734bafef6554d6fdbcd
   - enabled: 1

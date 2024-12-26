@@ -39,10 +39,19 @@ public class CharacterPickManager : NetworkBehaviour
             lobbyManager.AssignOrder();
             UpdatePlayerListClientRpc();
         }
+
+        if (IsHost)
+        {
+            btnReady.gameObject.SetActive(true);
+        }
+        else if (IsClient)
+        {
+            btnReady.gameObject.SetActive(false);
+        }
         //lobbyManager = GetComponent<LobbyManager>();
         //playerList.Add(await lobbyManager.GetPlayerInfo(NetworkManager.Singleton.LocalClientId));
 
-        //btnReady.onClick.AddListener(ShowList);
+        btnReady.onClick.AddListener(StartGame);
     }
 
     private void InitializePlayOrder()
@@ -135,5 +144,27 @@ public class CharacterPickManager : NetworkBehaviour
     }
 
 
+    #region Game Ready
 
+
+    public void StartGame()
+    {
+        try
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            {
+                LobbySceneManager.Instance.StartGameServerRpc();
+            }
+            else
+            {
+                Debug.LogWarning("Only the Host can start the game!");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error starting game: " + e.Message);
+        }
+    }
+
+    #endregion
 }

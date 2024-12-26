@@ -239,9 +239,12 @@ public class LobbyManager : MonoBehaviour
     {
         HandlRefresh();
 
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        if (NetworkManager.Singleton.IsHost)
         {
-            Debug.Log($"Client ID: {client.ClientId}");
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                Debug.Log($"Client ID: {client.ClientId}");
+            }
         }
 
         if (joinedLobby != null)
@@ -290,7 +293,7 @@ public class LobbyManager : MonoBehaviour
             // Chuyển tất cả người chơi sang Scene PickCharacter
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
             {
-                LobbySceneManager.Instance.StartGameServerRpc();
+                LobbySceneManager.Instance.PlayerReadyServerRpc();
             }
             else
             {
@@ -347,7 +350,7 @@ public class LobbyManager : MonoBehaviour
     {
         string playerListText = "Player List:\n";
 
-        foreach (var player in serverPlayerData.Values)
+        foreach (Info player in serverPlayerData.Values)
         {
             Debug.Log($"Player {player.PlayerName}: Order = {player.Order}, Ready = {player.IsReady}");
             playerListText += $"Order: {player.Order} | Name: {player.PlayerName} | Ready: {player.IsReady}\n";

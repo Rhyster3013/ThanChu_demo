@@ -23,9 +23,9 @@ public class LobbySceneManager : NetworkBehaviour
 
     // Hàm Host gọi khi nhấn StartGame
     [ServerRpc(RequireOwnership = false)]
-    public void StartGameServerRpc()
+    public void PlayerReadyServerRpc()
     {
-        Debug.Log("Host is starting the game...");
+        Debug.Log("Host is loading next scene...");
         LoadPickCharacterSceneClientRpc();
     }
 
@@ -35,5 +35,21 @@ public class LobbySceneManager : NetworkBehaviour
     {
         Debug.Log("Loading PickCharacter scene...");
         NetworkManager.Singleton.SceneManager.LoadScene("PickCharacter", LoadSceneMode.Single);
+    }
+
+    // Hàm Host gọi khi nhấn StartGame
+    [ServerRpc(RequireOwnership = false)]
+    public void StartGameServerRpc()
+    {
+        Debug.Log("Host is starting the game...");
+        LoadGameStartClientRpc();
+    }
+
+    // ClientRpc gửi lệnh chuyển scene tới tất cả các client
+    [ClientRpc]
+    private void LoadGameStartClientRpc()
+    {
+        Debug.Log("Loading GameMatch scene...");
+        NetworkManager.Singleton.SceneManager.LoadScene("GameMatch", LoadSceneMode.Single);
     }
 }

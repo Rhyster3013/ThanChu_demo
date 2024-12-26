@@ -51,7 +51,7 @@ public class RelayManager : MonoBehaviour
             LobbyInstance.Instance.LobbyID = lobby.Id;
             LobbyInstance.Instance.PlayerName = "Rhyster";
 
-            string message = ("Lobby created with ID: " + lobby.Id + " and join code: " + lobby.LobbyCode);
+            string message = ("Lobby ID: " + lobby.Id + ", JoinCode: " + lobby.LobbyCode);
             Debug.Log(message);
             LobbyInstance.Instance.Message = message;
 
@@ -74,11 +74,9 @@ public class RelayManager : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
             NetworkManager.Singleton.StartHost();
+            Debug.Log("Host started");
             StartServerOrHost();
             LobbyInstance.Instance.PlayerLobbyID = AuthenticationService.Instance.PlayerId;
-
-            await AddClientIdToPlayer(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId.ToString());
-            Debug.Log("Netcode Host started. With id = " + NetworkManager.Singleton.LocalClientId.ToString());
 
             return lobby.LobbyCode; // Trả về Lobby Join Code
         }
@@ -145,8 +143,6 @@ public class RelayManager : MonoBehaviour
 
                 LobbyInstance.Instance.PlayerLobbyID = AuthenticationService.Instance.PlayerId;
 
-                await AddClientIdToPlayer(AuthenticationService.Instance.PlayerId, NetworkManager.Singleton.LocalClientId.ToString());
-                Debug.Log("Netcode Client started. With id = " + NetworkManager.Singleton.LocalClientId.ToString());
                 }
                 else
                 {
@@ -191,9 +187,14 @@ public class RelayManager : MonoBehaviour
             if (!playerIdToClientId.ContainsKey(playerId))
             {
                 playerIdToClientId[playerId] = clientId;
+                Debug.Log("Player " + playerId + " mapped for clientID " + clientId);
             }
-            Debug.Log("Player " + playerId + " mapped for clientID " + clientId);
-        }catch (System.Exception e)
+            else
+            {
+                Debug.LogWarning($"ClientId not found for PlayerId: {playerId}");
+            }
+        }
+        catch (System.Exception e)
         {
             Debug.LogException(e);
         }
@@ -224,9 +225,18 @@ public class RelayManager : MonoBehaviour
         }
     }
 
-    private void OnClientConnected(ulong clientId)
+    private async void OnClientConnected(ulong clientId)
     {
         Debug.Log($"Client connected: {clientId}");
+
+        if (NetworkManager.Singleton.IsHost)
+        {
+            await AddClientIdToPlayer(AuthenticationService.Instance.PlayerId, "0");
+        }
+        else
+        {
+            await AddClientIdToPlayer(AuthenticationService.Instance.PlayerId, clientId.ToString());
+        }
     }
 
     private void OnClientDisconnected(ulong clientId)

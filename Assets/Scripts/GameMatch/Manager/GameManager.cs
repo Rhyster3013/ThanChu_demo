@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
    FunctionController functionController;
+    FunctOnlineController functOnlineController;
+    public Button BtnEnemyAction;
 
     public UnityEngine.UI.Button btnStartGame;
 
@@ -10,8 +13,18 @@ public class GameManager : MonoBehaviour
     {
         btnStartGame.onClick.AddListener(GameStart);
 
-        functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
-        functionController.MatchInitialize();
+        if (!RoomSizeInstance.Instance.online)
+        {
+            BtnEnemyAction.gameObject.SetActive(true);
+            functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
+            functionController.MatchInitialize();
+    }
+        else
+        {
+            BtnEnemyAction.gameObject.SetActive(false);
+            functOnlineController = GameObject.Find("GameManager").GetComponent<FunctOnlineController>();
+            functOnlineController.MatchInitialize();
+        }
     }
 
     private void GameStart()

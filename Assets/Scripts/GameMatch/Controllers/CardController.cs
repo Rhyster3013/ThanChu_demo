@@ -55,7 +55,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         {
             setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
             setName(gameObject, currentCard.Name);
-            //SetImage(gameObject, currentCard.Name);
+            SetImage(gameObject, currentCard.Name);
 
             SetCardOverlay();
             ActiveCard();
@@ -106,8 +106,16 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         Image cardImage = image.GetComponent<Image>();
         TextMeshProUGUI cardPoint = point.GetComponent<TextMeshProUGUI>();
 
-        //Sprite elementSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/CardImages/Elements/" + element + ".png");
-        //cardImage.sprite = elementSprite;
+        Sprite sprite = Resources.Load<Sprite>("Assets/Images/CardImages/Elements/" + element + ".png");
+
+        if (sprite != null)
+        {
+            cardImage.sprite = sprite;
+        }
+        else
+        {
+            Debug.LogError($"Sprite '{name}' not found in Resources!");
+        }
 
         cardPoint.text = number;
 
@@ -131,7 +139,8 @@ public class CardController : MonoBehaviour, IPointerClickHandler
 
     public void setName(GameObject card, string nameInput)
     {
-        Transform name = card.transform.Find("Name");
+        Transform nameBG = card.transform.Find("CardName");
+        Transform name = nameBG.transform.Find("Name");
         TextMeshProUGUI cardName = name.GetComponent<TextMeshProUGUI>();
 
         cardName.text = nameInput;
@@ -142,8 +151,16 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         Transform illus = card.transform.Find("Illustration");
         Image illustrate = illus.GetComponent<Image>();
 
-        //Sprite imageSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/CardImages/Basic/" + name + ".png");
-        //illustrate.sprite = imageSprite;
+        Sprite sprite = Resources.Load<Sprite>("Assets/Images/CardImages/Basic/" + name + ".png");
+
+        if (sprite != null)
+        {
+            illustrate.sprite = sprite;
+        }
+        else
+        {
+            Debug.LogError($"Sprite '{name}' not found in Resources!");
+        }
     }
 
     #endregion

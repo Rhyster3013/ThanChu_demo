@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
   m_Name: Heal10Wind
   m_EditorClassIdentifier: 
-  Id: 29
+  Id: 28
   Name: Heal
   Description: Heal 1 HP or Rescue 1 player
   Number: 10
