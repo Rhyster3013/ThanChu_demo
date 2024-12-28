@@ -1,94 +1,304 @@
 {
     "cards": [
         {
-            "instanceID": -77588
+            "Id": 0,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 11,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77604
+            "Id": 1,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 10,
+            "Element": "Water",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77620
+            "Id": 2,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 5,
+            "Element": "Water",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77636
+            "Id": 3,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 12,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77652
+            "Id": 4,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 9,
+            "Element": "Earth",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77668
+            "Id": 5,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 10,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77684
+            "Id": 6,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 4,
+            "Element": "Water",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77700
+            "Id": 7,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 3,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77716
+            "Id": 8,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 6,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77732
+            "Id": 9,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 6,
+            "Element": "Earth",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77748
+            "Id": 10,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 4,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77764
+            "Id": 11,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 1,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77780
+            "Id": 12,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 11,
+            "Element": "Earth",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77796
+            "Id": 13,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 8,
+            "Element": "Earth",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77812
+            "Id": 14,
+            "Name": "Attack",
+            "Description": "Deal 1 dmg",
+            "Number": 10,
+            "Element": "Earth",
+            "Color": "Black",
+            "Damage": 1,
+            "Targets": 1
         },
         {
-            "instanceID": -77828
+            "Id": 15,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 1,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77844
+            "Id": 16,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 2,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77860
+            "Id": 17,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 1,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77876
+            "Id": 18,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 7,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77892
+            "Id": 19,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 10,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77908
+            "Id": 20,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 3,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77924
+            "Id": 21,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 4,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77940
+            "Id": 22,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 6,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77956
+            "Id": 23,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 8,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77972
+            "Id": 24,
+            "Name": "Dodge",
+            "Description": "Evade an Attack",
+            "Number": 12,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": 0
         },
         {
-            "instanceID": -77988
+            "Id": 25,
+            "Name": "Heal",
+            "Description": "Heal 1 HP or Rescue 1 player",
+            "Number": 3,
+            "Element": "Wind",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": -1
         },
         {
-            "instanceID": -77994
+            "Id": 26,
+            "Name": "Heal",
+            "Description": "Heal 1 HP or Rescue 1 player",
+            "Number": 2,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": -1
         },
         {
-            "instanceID": -78010
+            "Id": 27,
+            "Name": "Heal",
+            "Description": "Heal 1 HP or Rescue 1 player",
+            "Number": 5,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": -1
         },
         {
-            "instanceID": -78026
+            "Id": 28,
+            "Name": "Heal",
+            "Description": "Heal 1 HP or Rescue 1 player",
+            "Number": 4,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": -1
         },
         {
-            "instanceID": -78042
+            "Id": 29,
+            "Name": "Heal",
+            "Description": "Heal 1 HP or Rescue 1 player",
+            "Number": 12,
+            "Element": "Fire",
+            "Color": "Red",
+            "Damage": 0,
+            "Targets": -1
         }
     ]
 }

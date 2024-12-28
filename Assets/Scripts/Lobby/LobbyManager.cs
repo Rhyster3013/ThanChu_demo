@@ -320,6 +320,7 @@ public class LobbyManager : MonoBehaviour
 
         // Gán số thứ tự ngẫu nhiên từ 1 đến n cho từng người chơi
         List<int> orders = GenerateRandomOrder(hostLobby.Players.Count);
+        RoomSizeInstance.Instance.roomSize = hostLobby.Players.Count;
         int index = 0;
         
         foreach (Player player in hostLobby.Players)
@@ -388,33 +389,6 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    [ClientRpc]
-    public void UpdatePlayerOrderClientRpc(int order, ClientRpcParams clientRpcParams = default)
-    {
-        Debug.Log($"Received Order: {order}");
-
-        // Cập nhật thứ tự của người chơi hiện tại
-        if (!string.IsNullOrEmpty(LobbyInstance.Instance.PlayerLobbyID))
-        {
-            LobbyService.Instance.UpdatePlayerAsync(LobbyInstance.Instance.LobbyID, LobbyInstance.Instance.PlayerLobbyID, new UpdatePlayerOptions
-            {
-                Data = new Dictionary<string, PlayerDataObject>
-            {
-                { "Order", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, order.ToString()) }
-            }
-            }).ContinueWith(task =>
-            {
-                if (task.IsCompletedSuccessfully)
-                {
-                    Debug.Log($"Successfully updated order to: {order}");
-                }
-                else
-                {
-                    Debug.LogError($"Failed to update order: {task.Exception?.Message}");
-                }
-            });
-        }
-    }
 
     #endregion
 

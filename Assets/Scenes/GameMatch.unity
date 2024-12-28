@@ -1320,7 +1320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &452411752
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2541,6 +2541,7 @@ GameObject:
   - component: {fileID: 826825151}
   - component: {fileID: 826825152}
   - component: {fileID: 826825153}
+  - component: {fileID: 826825156}
   - component: {fileID: 826825154}
   - component: {fileID: 826825155}
   m_Layer: 5
@@ -2591,6 +2592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ded5e829acb78324ca5e3e7c35f5c921, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomSize: 2
   GOList: []
   controllerList: []
   playerList: []
@@ -2624,6 +2626,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9197a03400a5fcb438a218df07170ba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &826825156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826825148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26499ace7b9c10640a2bcbd7f95f77c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomSize: 2
+  GOList: []
+  controllerList: []
+  playerList: []
+  roundList: []
+  playerIndex: 0
+  respondIndex: 0
+  processCase: 0
+  deckManager: {fileID: 0}
+  cardName: {fileID: 0}
 --- !u!1 &828326855
 GameObject:
   m_ObjectHideFlags: 0
@@ -3799,6 +3823,7 @@ MonoBehaviour:
   functionController: {fileID: 0}
   timingController: {fileID: 0}
   btnNextStage: {fileID: 0}
+  btnEnemyAction: {fileID: 0}
   current: 
 --- !u!114 &1406742282
 MonoBehaviour:
@@ -4725,7 +4750,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1811972865
 MonoBehaviour:
   m_ObjectHideFlags: 0

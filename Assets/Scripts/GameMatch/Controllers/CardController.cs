@@ -1,4 +1,5 @@
 
+using System.Xml.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -106,7 +107,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         Image cardImage = image.GetComponent<Image>();
         TextMeshProUGUI cardPoint = point.GetComponent<TextMeshProUGUI>();
 
-        Sprite sprite = Resources.Load<Sprite>("Assets/Images/CardImages/Elements/" + element + ".png");
+        Sprite sprite = Resources.Load<Sprite>("Images/CardImages/Elements/" + element);
 
         if (sprite != null)
         {
@@ -114,7 +115,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            Debug.LogError($"Sprite '{name}' not found in Resources!");
+            Debug.LogError($"Sprite '{element}' not found in Resources!");
         }
 
         cardPoint.text = number;
@@ -151,7 +152,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         Transform illus = card.transform.Find("Illustration");
         Image illustrate = illus.GetComponent<Image>();
 
-        Sprite sprite = Resources.Load<Sprite>("Assets/Images/CardImages/Basic/" + name + ".png");
+        Sprite sprite = Resources.Load<Sprite>("Images/CardImages/Basic/" + name);
 
         if (sprite != null)
         {

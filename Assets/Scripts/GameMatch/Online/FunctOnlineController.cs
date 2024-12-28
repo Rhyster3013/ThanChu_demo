@@ -1,14 +1,10 @@
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Xml;
-using Unity.VisualScripting;
+using Unity.Netcode;
 using UnityEngine;
-using static Unity.VisualScripting.Member;
-using static UnityEngine.GraphicsBuffer;
 
-public class FunctionController : MonoBehaviour
+public class FunctOnlineController : NetworkBehaviour
 {
     public int roomSize = 2;
     public List<GameObject> GOList = new();
@@ -124,7 +120,7 @@ public class FunctionController : MonoBehaviour
             PlayerClear(source, 1);
         }
     }
-    
+
     #endregion
 
 
@@ -304,6 +300,7 @@ public class FunctionController : MonoBehaviour
                     }
                     break;
 
+
             }
             user.isConfirm = true;
 
@@ -360,7 +357,7 @@ public class FunctionController : MonoBehaviour
         {
             int limit = currentPlayer.limitPick;
 
-            if ((currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count == limit && currentPlayer.limitPick != 1) 
+            if ((currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count == limit && currentPlayer.limitPick != 1)
                 || (currentPlayer.AfterPick1Card != null && currentPlayer.limitPick == 1))
             {
                 foreach (Cards card in currentPlayer.cardsInHand)
@@ -564,16 +561,17 @@ public class FunctionController : MonoBehaviour
             //List<Deck> source;
             if (amount < drawDeck.Count && player.cardsInHand != null)
             {
-                OpenFromDeck(player, amount );
+                OpenFromDeck(player, amount);
             }
             else
             {
+                Debug.Log("Reset drawDeck before drawing");
                 int tempCount = amount - drawDeck.Count;
                 OpenFromDeck(player, drawDeck.Count);
 
                 ResetDeck();
 
-                OpenFromDeck(player, tempCount );
+                OpenFromDeck(player, tempCount);
             }
         }
         else
@@ -768,7 +766,7 @@ public class FunctionController : MonoBehaviour
 
     public void NextPlayerTurn()
     {
-        if (playerIndex < playerList.Count-1)
+        if (playerIndex < playerList.Count - 1)
         {
             playerIndex++;
         }
@@ -830,7 +828,7 @@ public class FunctionController : MonoBehaviour
         GameObject currentPlayerGO = GameObject.Find("Player");
         SetPlayerComponent(currentPlayerGO);
 
-        if(roomSize == 2)
+        if (roomSize == 2)
         {
             string enemyName = "Enemy20";
             GameObject enemyGO = GameObject.Find(enemyName);

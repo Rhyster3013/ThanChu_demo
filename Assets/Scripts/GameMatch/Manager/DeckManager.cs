@@ -19,7 +19,6 @@ public class DeckManager : MonoBehaviour
 
         // Call the method for randomize deck
         LoadRandomDecks();
-        ResetDeck();
     }
 
     // Update is called once per frame
@@ -27,11 +26,6 @@ public class DeckManager : MonoBehaviour
     {
         countDraw = drawDecks.Count;
         countDiscard = discardDecks.Count;
-    }
-
-    void ResetDeck()
-    {
-        functionController.CardClear(drawDecks, 0);
     }
 
     #region Deck Generator
@@ -62,7 +56,7 @@ public class DeckManager : MonoBehaviour
                     card.Damage = cardData.Damage;
                     card.Targets = cardData.Targets;
 
-                    drawDecks.Add(card);
+                    allDecks.Add(card);
                 }
             }
 

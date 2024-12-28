@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
-  m_Name: Dodge7Wind
+  m_Name: Attack8Earth
   m_EditorClassIdentifier: 
-  Id: 18
-  Name: Dodge
-  Description: Evade an Attack
-  Number: 7
-  Color: Red
-  Element: Wind
-  Targets: 0
-  Damage: 0
+  Id: 13
+  Name: Attack
+  Description: Deal 1 dmg
+  Number: 8
+  Color: Black
+  Element: Earth
+  Targets: 1
+  Damage: 1
   isActive: 0
   isUsable: 0
   isInHand: {fileID: 0}

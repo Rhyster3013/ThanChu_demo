@@ -1,163 +1,163 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using UnityEditor;
-using UnityEngine;
+//using System;
+//using System.Collections.Generic;
+//using System.IO;
+//using UnityEditor;
+//using UnityEngine;
 
-public class DeckSpawner
-{
+//public class DeckSpawner
+//{
 
-    [MenuItem("Example/Setup ScriptableObject Card Example")]
-    static void MenuCallBack()
-    {
-        List<string> elementList = new List<string>() { "Fire", "Wind", "Water", "Earth" };
-        DeckData deckData = new DeckData();
+//    [MenuItem("Example/Setup ScriptableObject Card Example")]
+//    static void MenuCallBack()
+//    {
+//        List<string> elementList = new List<string>() { "Fire", "Wind", "Water", "Earth" };
+//        DeckData deckData = new DeckData();
 
-        int a = 0;
-        int b = 15;
-        int c = 25;
+//        int a = 0;
+//        int b = 15;
+//        int c = 25;
 
-        while (a < 15)
-        {
-            int number = UnityEngine.Random.Range(1, 13);
-            int element = UnityEngine.Random.Range(0, 4);
-            string cardName = "Attack" + number + elementList[element];
-            string cardPath = "Assets/Data/" + cardName + ".asset";
+//        while (a < 15)
+//        {
+//            int number = UnityEngine.Random.Range(1, 13);
+//            int element = UnityEngine.Random.Range(0, 4);
+//            string cardName = "Attack" + number + elementList[element];
+//            string cardPath = "Assets/Data/" + cardName + ".asset";
 
-            // Step 1 - Create or reload the assets that store each Deck object.
-            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
-            if (card == null)
-            {
-                // Create and save ScriptableObject because it doesn't exist yet
-                card = ScriptableObject.CreateInstance<Cards>();
-                card.Id = a;
-                card.Name = "Attack";
-                card.Description = "Deal 1 dmg";
+//            // Step 1 - Create or reload the assets that store each Deck object.
+//            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
+//            if (card == null)
+//            {
+//                // Create and save ScriptableObject because it doesn't exist yet
+//                card = ScriptableObject.CreateInstance<Cards>();
+//                card.Id = a;
+//                card.Name = "Attack";
+//                card.Description = "Deal 1 dmg";
 
-                card.Number = number;
-                card.Element = elementList[element];
-                if (element == 0 || element == 1)
-                {
-                    card.Color = "Red";
-                }
-                else if (element == 2 || element == 3)
-                {
-                    card.Color = "Black";
-                }
+//                card.Number = number;
+//                card.Element = elementList[element];
+//                if (element == 0 || element == 1)
+//                {
+//                    card.Color = "Red";
+//                }
+//                else if (element == 2 || element == 3)
+//                {
+//                    card.Color = "Black";
+//                }
 
-                card.Damage = 1;
-                card.Targets = 1;
+//                card.Damage = 1;
+//                card.Targets = 1;
 
-                AssetDatabase.CreateAsset(card, cardPath);
+//                AssetDatabase.CreateAsset(card, cardPath);
 
-                deckData.cards.Add(new CardData
-                {
-                    Id = card.Id,
-                    Name = card.Name,
-                    Description = card.Description,
-                    Number = card.Number,
-                    Element = card.Element,
-                    Color = card.Color,
-                    Damage = card.Damage,
-                    Targets = card.Targets
-                });
+//                deckData.cards.Add(new CardData
+//                {
+//                    Id = card.Id,
+//                    Name = card.Name,
+//                    Description = card.Description,
+//                    Number = card.Number,
+//                    Element = card.Element,
+//                    Color = card.Color,
+//                    Damage = card.Damage,
+//                    Targets = card.Targets
+//                });
 
-                a++;
-            }
-        }
+//                a++;
+//            }
+//        }
 
-        while (b < 25)
-        {
-            int number = UnityEngine.Random.Range(1, 13);
-            int element = UnityEngine.Random.Range(0, 2);
-            string cardName = "Dodge" + number + elementList[element];
-            string cardPath = "Assets/Data/" + cardName + ".asset";
+//        while (b < 25)
+//        {
+//            int number = UnityEngine.Random.Range(1, 13);
+//            int element = UnityEngine.Random.Range(0, 2);
+//            string cardName = "Dodge" + number + elementList[element];
+//            string cardPath = "Assets/Data/" + cardName + ".asset";
 
-            // Step 1 - Create or reload the assets that store each Deck object.
-            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
-            if (card == null)
-            {
-                // Create and save ScriptableObject because it doesn't exist yet
-                card = ScriptableObject.CreateInstance<Cards>();
-                card.Id = b;
-                card.Name = "Dodge";
-                card.Description = "Evade an Attack";
+//            // Step 1 - Create or reload the assets that store each Deck object.
+//            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
+//            if (card == null)
+//            {
+//                // Create and save ScriptableObject because it doesn't exist yet
+//                card = ScriptableObject.CreateInstance<Cards>();
+//                card.Id = b;
+//                card.Name = "Dodge";
+//                card.Description = "Evade an Attack";
 
-                card.Number = number;
-                card.Element = elementList[element];
-                card.Color = "Red";
+//                card.Number = number;
+//                card.Element = elementList[element];
+//                card.Color = "Red";
 
-                card.Damage = 0;
-                card.Targets = 0;
+//                card.Damage = 0;
+//                card.Targets = 0;
 
-                AssetDatabase.CreateAsset(card, cardPath);
+//                AssetDatabase.CreateAsset(card, cardPath);
 
-                deckData.cards.Add(new CardData
-                {
-                    Id = card.Id,
-                    Name = card.Name,
-                    Description = card.Description,
-                    Number = card.Number,
-                    Element = card.Element,
-                    Color = card.Color,
-                    Damage = card.Damage,
-                    Targets = card.Targets
-                });
+//                deckData.cards.Add(new CardData
+//                {
+//                    Id = card.Id,
+//                    Name = card.Name,
+//                    Description = card.Description,
+//                    Number = card.Number,
+//                    Element = card.Element,
+//                    Color = card.Color,
+//                    Damage = card.Damage,
+//                    Targets = card.Targets
+//                });
 
-                b++;
-            }
-        }
+//                b++;
+//            }
+//        }
 
 
-        while (c < 30)
-        {
-            int number = UnityEngine.Random.Range(1, 13);
-            int element = UnityEngine.Random.Range(0, 2);
-            string cardName = "Heal" + number + elementList[element];
-            string cardPath = "Assets/Data/" + cardName + ".asset";
+//        while (c < 30)
+//        {
+//            int number = UnityEngine.Random.Range(1, 13);
+//            int element = UnityEngine.Random.Range(0, 2);
+//            string cardName = "Heal" + number + elementList[element];
+//            string cardPath = "Assets/Data/" + cardName + ".asset";
 
-            // Step 1 - Create or reload the assets that store each Deck object.
-            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
-            if (card == null)
-            {
-                // Create and save ScriptableObject because it doesn't exist yet
-                card = ScriptableObject.CreateInstance<Cards>();
-                card.Id = c;
-                card.Name = "Heal";
-                card.Description = "Heal 1 HP or Rescue 1 player";
+//            // Step 1 - Create or reload the assets that store each Deck object.
+//            Cards card = AssetDatabase.LoadAssetAtPath<Cards>(cardPath);
+//            if (card == null)
+//            {
+//                // Create and save ScriptableObject because it doesn't exist yet
+//                card = ScriptableObject.CreateInstance<Cards>();
+//                card.Id = c;
+//                card.Name = "Heal";
+//                card.Description = "Heal 1 HP or Rescue 1 player";
 
-                card.Number = number;
-                card.Element = elementList[element];
-                card.Color = "Red";
+//                card.Number = number;
+//                card.Element = elementList[element];
+//                card.Color = "Red";
 
-                card.Damage = 0;
-                card.Targets = -1;
+//                card.Damage = 0;
+//                card.Targets = -1;
 
-                AssetDatabase.CreateAsset(card, cardPath);
+//                AssetDatabase.CreateAsset(card, cardPath);
 
-                deckData.cards.Add(new CardData
-                {
-                    Id = card.Id,
-                    Name = card.Name,
-                    Description = card.Description,
-                    Number = card.Number,
-                    Element = card.Element,
-                    Color = card.Color,
-                    Damage = card.Damage,
-                    Targets = card.Targets
-                });
+//                deckData.cards.Add(new CardData
+//                {
+//                    Id = card.Id,
+//                    Name = card.Name,
+//                    Description = card.Description,
+//                    Number = card.Number,
+//                    Element = card.Element,
+//                    Color = card.Color,
+//                    Damage = card.Damage,
+//                    Targets = card.Targets
+//                });
 
-                c++;
-            }
-        }
+//                c++;
+//            }
+//        }
 
-        SaveDeckDataToJson(deckData, "Assets/Resources/DeckData.json");
-    }
+//        SaveDeckDataToJson(deckData, "Assets/Resources/DeckData.json");
+//    }
 
-    static void SaveDeckDataToJson(DeckData deckData, string path)
-    {
-        string json = JsonUtility.ToJson(deckData, true); 
-        File.WriteAllText(path, json);
-        Debug.Log($"Deck data saved to {path}");
-    }
-}
+//    static void SaveDeckDataToJson(DeckData deckData, string path)
+//    {
+//        string json = JsonUtility.ToJson(deckData, true);
+//        File.WriteAllText(path, json);
+//        Debug.Log($"Deck data saved to {path}");
+//    }
+//}

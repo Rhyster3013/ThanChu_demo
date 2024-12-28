@@ -17,12 +17,16 @@ public class GameManager : MonoBehaviour
         {
             BtnEnemyAction.gameObject.SetActive(true);
             functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
+
+            //functionController.roomSize = RoomSizeInstance.Instance.roomSize;
             functionController.MatchInitialize();
     }
         else
         {
             BtnEnemyAction.gameObject.SetActive(false);
             functOnlineController = GameObject.Find("GameManager").GetComponent<FunctOnlineController>();
+
+            functOnlineController.roomSize = RoomSizeInstance.Instance.roomSize;
             functOnlineController.MatchInitialize();
         }
     }
@@ -30,6 +34,16 @@ public class GameManager : MonoBehaviour
     private void GameStart()
     {
         btnStartGame.gameObject.SetActive(false);
-        functionController.GameStart();
+
+        if (!RoomSizeInstance.Instance.online)
+        {
+            functionController.GameStart(); 
+            functionController.ResetDeck();
+        }
+        else
+        {
+            functOnlineController.GameStart();
+            functOnlineController.ResetDeck();
+        }
     }
 }

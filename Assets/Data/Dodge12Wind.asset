@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822361cb79f6bed44b1523ffdd9ce49c, type: 3}
-  m_Name: Dodge7Wind
+  m_Name: Dodge12Wind
   m_EditorClassIdentifier: 
-  Id: 18
+  Id: 24
   Name: Dodge
   Description: Evade an Attack
-  Number: 7
+  Number: 12
   Color: Red
   Element: Wind
   Targets: 0
