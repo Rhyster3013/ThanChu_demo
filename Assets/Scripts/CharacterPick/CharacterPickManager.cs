@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,37 +8,59 @@ using UnityEngine.UI;
 
 public class CharacterPickManager : NetworkBehaviour
 {
+    public static CharacterPickManager Instance { get; private set; }
+
     [Header("References")]
     public GameObject playerInfoPrefab;
     public Transform playerInfoContainer;
 
     public Button btnReady;
-    public Button btnSend;
     public TextMeshProUGUI playerListText;
 
     private List<int> availableOrders = new List<int>();
     private LobbyManager lobbyManager;
 
-    private NetworkList<PlayerInfo> playerList;
+
+    private void Start()
+    {
+        //btnSend.onClick.AddListener(SendMessage);
+    }
 
     private void Awake()
     {
-        playerList = new NetworkList<PlayerInfo>();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
+    private async void WaitForPlayerDataReady()
+    {
+        while (!lobbyManager.IsDataReady())
+        {
+            Debug.Log("Waiting for player data...");
+            await Task.Delay(100);
+        }
+
+        UpdatePlayerListClientRpc();
+        Debug.Log("Player list updated successfully.");
+    }
 
     public override void OnNetworkSpawn()
     {
         lobbyManager = gameObject.GetComponent<LobbyManager>();
-        btnSend.onClick.AddListener(UpdatePlayerListClientRpc);
 
         if (IsServer)
         {
             // Khởi tạo thứ tự chơi khi có đủ người chơi
             //InitializePlayOrder();
             //SpawnPlayerLobbyInfoObjects();
+            WaitForPlayerDataReady();
             lobbyManager.AssignOrder();
-            UpdatePlayerListClientRpc();
         }
 
         if (IsHost)
@@ -118,12 +141,6 @@ public class CharacterPickManager : NetworkBehaviour
         }
     }
 
-
-    public void ShowList()
-    {
-        Debug.Log(playerList);
-    }
-
     private void ShuffleList(List<int> list)
     {
         // Xáo trộn danh sách bằng thuật toán Fisher-Yates
@@ -166,5 +183,8 @@ public class CharacterPickManager : NetworkBehaviour
         }
     }
 
+    #endregion
+
+    #region chatbox
     #endregion
 }

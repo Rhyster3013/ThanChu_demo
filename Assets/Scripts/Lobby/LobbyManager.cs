@@ -31,6 +31,12 @@ public class LobbyManager : MonoBehaviour
         //HandlRefresh();
     }
 
+    public bool IsDataReady()
+    {
+        // Kiểm tra xem dữ liệu trong serverPlayerData
+        return serverPlayerData != null && serverPlayerData.Count > 0;
+    }
+
     private async void HandlRefresh()
     {
         try
@@ -469,6 +475,36 @@ public class LobbyManager : MonoBehaviour
         }
 
         return info;
+    }
+
+    public async Task<string> GetPlayerName(ulong clientId)
+    {
+        try
+        {
+            Lobby lobby = await LobbyService.Instance.GetLobbyAsync(LobbyInstance.Instance.LobbyID);
+
+            if (lobby == null || lobby.Players == null || lobby.Players.Count == 0)
+            {
+                Debug.LogError("Lobby is null or empty!");
+                return null;
+            }
+
+            foreach (Player player in lobby.Players)
+            {
+                if (ulong.Parse(player.Data["ClientId"].Value) == clientId)
+                {
+                    return player.Data["PlayerName"].Value; // Trả về tên người chơi
+                }
+            }
+
+            Debug.LogWarning($"Player with ClientId {clientId} not found.");
+            return null; // Không tìm thấy
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error in GetPlayerName: {e.Message}");
+            return null;
+        }
     }
 
     private List<int> GenerateRandomOrder(int count)

@@ -156,7 +156,7 @@ public class DeckSpawner
 
     static void SaveDeckDataToJson(DeckData deckData, string path)
     {
-        string json = JsonUtility.ToJson(deckData, true); 
+        string json = JsonUtility.ToJson(deckData, true);
         File.WriteAllText(path, json);
         Debug.Log($"Deck data saved to {path}");
     }
