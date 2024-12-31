@@ -20,8 +20,6 @@ public class LobbyManager : MonoBehaviour
     private List<PlayerInfo> playerList = new List<PlayerInfo>();
     private float hbTimer;
 
-    public Dictionary<ulong, Info> serverPlayerData = new Dictionary<ulong, Info>();
-
     #region Keep the server up
 
     private void Update()
@@ -351,7 +349,7 @@ public class LobbyManager : MonoBehaviour
     {
         string playerListText = "Player List:\n";
 
-        foreach (Info player in serverPlayerData.Values)
+        foreach (Info player in LobbyInstance.Instance.serverPlayerData.Values)
         {
             Debug.Log($"Player {player.PlayerName}: Order = {player.Order}, Ready = {player.IsReady}");
             playerListText += $"Order: {player.Order} | Name: {player.PlayerName} | Ready: {player.IsReady}\n";
@@ -368,9 +366,9 @@ public class LobbyManager : MonoBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void AssignPlayerDataServerRpc(ulong clientId, string playerName, int order, bool isReady)
     {
-        if (!serverPlayerData.ContainsKey(clientId))
+        if (!LobbyInstance.Instance.serverPlayerData.ContainsKey(clientId))
         {
-            serverPlayerData[clientId] = new Info(order, playerName, isReady);
+            LobbyInstance.Instance.AddPlayer(clientId, new Info(order, playerName, isReady));
             Debug.Log($"Player {playerName} added to server with Order {order}.");
         }
     }
@@ -378,9 +376,9 @@ public class LobbyManager : MonoBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void AssignPlayerOrderServerRpc(ulong clientId, int order)
     {
-        if (serverPlayerData.ContainsKey(clientId))
+        if (LobbyInstance.Instance.serverPlayerData.ContainsKey(clientId))
         {
-            serverPlayerData[clientId].Order = order;
+            LobbyInstance.Instance.serverPlayerData[clientId].Order = order;
             Debug.Log($"Order {order} assigned to Client {clientId}");
         }
         else
@@ -409,40 +407,6 @@ public class LobbyManager : MonoBehaviour
             Debug.LogError($"Error fetching Lobby ID: {e.Message}");
             return null;
         }
-    }
-
-    public void AddPlayerToLobby(ulong clientId, string playerName)
-    {
-        PlayerInfo newPlayer = new PlayerInfo(clientId, playerName, 0);
-        playerList.Add(newPlayer);
-    }
-
-    public async Task<PlayerInfo> GetPlayerInfo(ulong clientId)
-    {
-        HandlRefresh();
-        if (joinedLobby == null || string.IsNullOrEmpty(joinedLobby.Id))
-        {
-            Debug.LogError("JoinedLobby is null or invalid.");
-        }
-        Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
-        Debug.Log(lobby.Players);
-
-        PlayerInfo info = new PlayerInfo();
-        foreach (var player in lobby.Players)
-        {
-            if (player.Id == LobbyInstance.Instance.PlayerLobbyID)
-            {
-                Debug.Log("Found Player: " + player);
-                info.ClientId = clientId;
-                info.PlayerName = player.Data["PlayerName"].Value;
-                info.Order = int.Parse(player.Data["Order"].Value);
-                Debug.Log("Id: " + info.ClientId + ", Name: " + info.PlayerName + ", Order: " + info.Order);
-
-                break;
-            }
-        }
-
-        return info;
     }
 
     private List<int> GenerateRandomOrder(int count)

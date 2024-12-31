@@ -1,21 +1,18 @@
-
-using System.Xml.Linq;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CardController : MonoBehaviour, IPointerClickHandler
+public class CardOnlineController : MonoBehaviour
 {
-    //public Deck currentCard { get; set; }
-    public Cards currentCard;
+    public CardsOnline currentCard;
 
     public GameObject overlayImage; // Image overlay
     private Outline outline;        // Card Outline
 
-    FunctionController function;
+    FunctOnlineController function;
 
     private void Start()
     {
@@ -23,7 +20,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         outline = GetComponent<Outline>();
         outline.enabled = false;
 
-        function = GameObject.Find("GameManager").GetComponent<FunctionController>();
+        function = GameObject.Find("GameManager").GetComponent<FunctOnlineController>();
     }
 
     private void Update()
@@ -37,7 +34,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
         {
             if (currentCard.isUsable && currentCard.isActive)
             {
-                Debug.Log(currentCard.isInHand + " has pressed " + gameObject.name);
+                Debug.Log(currentCard.ownerId + " has pressed " + gameObject.name);
 
                 function.CardUpdate(currentCard);
             }
@@ -53,7 +50,7 @@ public class CardController : MonoBehaviour, IPointerClickHandler
     // Display every UI elements based on the Deck currentCard
     private void ViewCard()
     {
-        if (currentCard != null && currentCard.isInHand != null && !currentCard.isProcessing)
+        if (currentCard != null && currentCard.isInHand && !currentCard.isProcessing)
         {
             setElement(gameObject, currentCard.Element, currentCard.Number.ToString());
             setName(gameObject, currentCard.Name);

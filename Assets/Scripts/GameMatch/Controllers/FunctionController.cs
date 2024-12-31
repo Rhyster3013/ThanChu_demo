@@ -594,13 +594,13 @@ public class FunctionController : MonoBehaviour
             Cards deck = handCards[i];
             if (player.AfterPickCard.Contains(deck))
             {
-                MoveCard(discardDeck, player.cardsInHand, deck);
+                MoveCard(discardDeck, handCards, deck);
                 player.AfterPickCard.Remove(deck);
                 CardClear(deck, 0);
             }
             if (deck == player.AfterPick1Card)
             {
-                MoveCard(discardDeck, player.cardsInHand, deck);
+                MoveCard(discardDeck, handCards, deck);
                 player.AfterPick1Card = null;
                 CardClear(deck, 0);
             }
@@ -628,14 +628,14 @@ public class FunctionController : MonoBehaviour
     {
         bool check = true;
 
-        if (cards != null)
-        {
-            foreach (Cards deck in cards)
-            {
-                if (deck.name == cardToCheck.name)
-                    check = false;
-            }
-        }
+        //if (cards != null)
+        //{
+        //    foreach (Cards deck in cards)
+        //    {
+        //        if (deck.name == cardToCheck.name)
+        //            check = false;
+        //    }
+        //}
 
         return check;
     }

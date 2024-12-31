@@ -17,6 +17,8 @@ public class LobbyInstance : MonoBehaviour
 
     public string Message { get; set; }
 
+    public Dictionary<ulong, Info> serverPlayerData = new Dictionary<ulong, Info>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -28,5 +30,25 @@ public class LobbyInstance : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+
+    public void AddPlayer(ulong clientId, Info data)
+    {
+        serverPlayerData[clientId] = data;
+    }
+
+    public Info GetPlayer(ulong clientId)
+    {
+        if (serverPlayerData.TryGetValue(clientId, out Info data))
+        {
+            return data;
+        }
+        return null;
+    }
+
+    public void RemovePlayer(ulong clientId)
+    {
+        serverPlayerData.Remove(clientId);
     }
 }

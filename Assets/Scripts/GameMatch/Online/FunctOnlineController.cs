@@ -3,22 +3,26 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using static PlayerOnlineModel;
 
 public class FunctOnlineController : NetworkBehaviour
 {
     public int roomSize = 2;
-    public List<GameObject> GOList = new();
-    public List<PlayerController> controllerList = new();
-    public List<PlayerModel> playerList = new();
-    public List<RoundController> roundList = new();
+
+    public Dictionary<ulong, PlayerOnlineModel> playerList = new Dictionary<ulong, PlayerOnlineModel>();
+    private Dictionary<ulong, RoundOnlineController> roundList = new Dictionary<ulong, RoundOnlineController>();
 
     public int playerIndex = 0;
     public int respondIndex = 0;
     public int processCase = 0;
 
-    public DeckManager deckManager;
+    public DeckOnlineManager deckManager;
     public CardFunctions cardName;
     TimingController timingController;
+
+    public PlayerOnlineController playerController;
+    public List<GameObject> GOList = new List<GameObject>();
+    public List<EnemyOnlineController> enemyList = new List<EnemyOnlineController>();
 
     #region Gameplay
 
@@ -36,21 +40,11 @@ public class FunctOnlineController : NetworkBehaviour
             timingController.IsAfterTargetted(target, target.isAfterTargetted);
     }
 
-    public void AfterPickCard(Cards deck, PlayerModel source)
+    public void AfterPickCard()
     {
-        if (source != null)
+        foreach (EnemyOnlineController target in enemyList)
         {
-            foreach (PlayerModel target in playerList)
-            {
-                if (target != source)
-                {
-                    target.isPickable = true;
-                }
-                else
-                {
-                    target.isPickable = false;
-                }
-            }
+            target.isPickable = true;
         }
     }
 
@@ -85,40 +79,40 @@ public class FunctOnlineController : NetworkBehaviour
 
     public void UseCard(PlayerModel source)
     {
-        if (source != null)
-        {
-            int damage = 1 + source.buffDamage;
-            PlayerModel target = source.isPickTarget;
-            //source.isNeedCard = false;
+        //if (source != null)
+        //{
+        //    int damage = 1 + source.buffDamage;
+        //    PlayerOnlineModel target = source.isPickTarget;
+        //    //source.isNeedCard = false;
 
-            target.isAfterTargetted = source.AfterPick1Card;
-            source.AfterPick1Card.isProcessing = true;
+        //    target.isAfterTargetted = source.AfterPick1Card;
+        //    source.AfterPick1Card.isProcessing = true;
 
-            Debug.Log("Card used");
+        //    Debug.Log("Card used");
 
-            cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
-            switch (target.isAfterTargetted.Name)
-            {
-                case "Attack":
-                    damage += source.buffAttack;
-                    source.limitAttack--;
-                    target.isAfterTargetted.Damage = damage;
-                    Debug.Log("Attacked");
+        //    cardName = GameObject.Find("GameManager").GetComponent<CardFunctions>();
+        //    switch (target.isAfterTargetted.Name)
+        //    {
+        //        case "Attack":
+        //            damage += source.buffAttack;
+        //            source.limitAttack--;
+        //            target.isAfterTargetted.Damage = damage;
+        //            Debug.Log("Attacked");
 
-                    AfterTargetted(target);
+        //            AfterTargetted(target);
 
-                    // Temporary stop player from using card
-                    CardClear(source.cardsInHand, 3);
-                    break;
-                case "Heal":
-                    cardName.Heal(source, target);
-                    Debug.Log("Healed");
-                    break;
-            }
+        //            // Temporary stop player from using card
+        //            CardClear(source.cardsInHand, 3);
+        //            break;
+        //        case "Heal":
+        //            cardName.Heal(source, target);
+        //            Debug.Log("Healed");
+        //            break;
+        //    }
 
-            PlayerClear(target, 0);
-            PlayerClear(source, 1);
-        }
+        //    PlayerClear(target, 0);
+        //    PlayerClear(source, 1);
+        //}
     }
 
     #endregion
@@ -126,17 +120,40 @@ public class FunctOnlineController : NetworkBehaviour
 
     #region Heal and Damage
 
-    public void LoseHP(PlayerModel player, int amount)
+    [ServerRpc(RequireOwnership = false)]
+    public void LoseHPServerRpc(ulong targetClientId, int amount)
     {
-        player.HP -= amount;
+        if (playerList.TryGetValue(targetClientId, out PlayerOnlineModel player))
+        {
+            int newHp = player.HP.Value - amount;
 
-        if (player.HP <= 0)
-        {
-            Dying(player, true);
+            UpdateHpClientRpc(newHp, targetClientId);
+
+            //if (player.HP <= 0)
+            //{
+            //    Dying(player, true);
+            //}
+            //else if (processCase != 1)
+            //{
+            //    FinishProcess();
+            //}
         }
-        else if (processCase != 1)
+    }
+
+    [ClientRpc]
+    private void UpdateHpClientRpc(int newHp, ulong targetClientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId != targetClientId)
         {
-            FinishProcess();
+            foreach (EnemyOnlineController enemy in enemyList)
+            {
+                if (enemy.enemyId == targetClientId)
+                    enemy.UpdateHp(newHp);
+            }
+        }
+        else
+        {
+            playerController.UpdateHP(newHp);
         }
     }
 
@@ -144,121 +161,121 @@ public class FunctOnlineController : NetworkBehaviour
     {
         player.HP++;
 
-        if (processCase == 1)
-        {
-            if (player.HP <= 0)
-            {
-                Dying(player, true);
-            }
-            else
-            {
-                Dying(player, false);
-            }
-        }
+        //if (processCase == 1)
+        //{
+        //    if (player.HP <= 0)
+        //    {
+        //        Dying(player, true);
+        //    }
+        //    else
+        //    {
+        //        Dying(player, false);
+        //    }
+        //}
     }
 
-    public void Dying(PlayerModel player, bool stillNeed)
-    {
-        if (stillNeed)
-        {
-            PlayerClear(2);
+    //public void Dying(PlayerModel player, bool stillNeed)
+    //{
+    //    if (stillNeed)
+    //    {
+    //        PlayerClear(2);
 
-            player.Status = -1;
-            processCase = 1;
+    //        player.Status = -1;
+    //        processCase = 1;
 
-            Debug.Log(player + " is dying");
+    //        Debug.Log(player + " is dying");
 
-            PlayerScan();
-        }
-        else
-        {
-            processCase = 0;
-            Debug.Log(player + " is rescued");
+    //        PlayerScan();
+    //    }
+    //    else
+    //    {
+    //        processCase = 0;
+    //        Debug.Log(player + " is rescued");
 
-            // Continue current player's turn
-            FinishProcess();
-        }
-    }
+    //        // Continue current player's turn
+    //        FinishProcess();
+    //    }
+    //}
 
-    public PlayerModel DyingPlayer()
-    {
-        PlayerModel dying = null;
-        foreach (PlayerModel player in playerList)
-        {
-            if (player != null && player.Status == -1)
-            {
-                dying = player; break;
-            }
-        }
+    //public PlayerOnlineModel DyingPlayer()
+    //{
+    //    PlayerModel dying = null;
+    //    foreach (PlayerModel player in playerList)
+    //    {
+    //        if (player != null && player.Status == -1)
+    //        {
+    //            dying = player; break;
+    //        }
+    //    }
 
-        return dying;
-    }
+    //    return dying;
+    //}
     #endregion
 
 
     #region Player Scans
 
-    public void PlayerScan()
-    {
-        respondIndex = playerIndex;
+    //public void PlayerScan()
+    //{
+    //    respondIndex = playerIndex;
 
-        ContinueScan();
-    }
+    //    ContinueScan();
+    //}
 
-    public void ContinueScan()
-    {
-        switch (processCase)
-        {
-            case 1:
-                Debug.Log("Would " + playerList[respondIndex] + " like to rescue");
-                timingController.SetUsableByName(playerList[respondIndex], "Heal");
-                break;
-        }
+    //public void ContinueScan()
+    //{
+    //    switch (processCase)
+    //    {
+    //        case 1:
+    //            Debug.Log("Would " + playerList[respondIndex] + " like to rescue");
+    //            timingController.SetUsableByName(playerList[respondIndex], "Heal");
+    //            break;
+    //    }
 
-        playerList[respondIndex].isCancel = true;
-    }
+    //    playerList[respondIndex].isCancel = true;
+    //}
 
-    public void SkipScan()
-    {
-        // If respondIndex = last player, reset. Else, continue ++
-        if (respondIndex == playerList.Count - 1)
-            respondIndex = 0;
-        else
-            respondIndex++;
+    //public void SkipScan()
+    //{
+    //    // If respondIndex = last player, reset. Else, continue ++
+    //    if (respondIndex == playerList.Count - 1)
+    //        respondIndex = 0;
+    //    else
+    //        respondIndex++;
 
-        if (respondIndex == playerIndex)
-        {
-            switch (processCase)
-            {
-                case 1:
-                    Debug.Log(DyingPlayer() + " is dead");
-                    DyingPlayer().Status = 0;
-                    GameEnd();
-                    break;
-            }
+    //    if (respondIndex == playerIndex)
+    //    {
+    //        switch (processCase)
+    //        {
+    //            case 1:
+    //                Debug.Log(DyingPlayer() + " is dead");
+    //                DyingPlayer().Status = 0;
+    //                GameEnd();
+    //                break;
+    //        }
 
-            return;
-        }
+    //        return;
+    //    }
 
-        ContinueScan();
-    }
+    //    ContinueScan();
+    //}
 
-    public void FinishProcess()
-    {
-        int alive = CheckAlive();
-        for (int i = 0; i < alive; i++)
-        {
-            if (playerList[i].Status == 1)
-            {
-                DiscardCard(playerList[i]);
-                // Continue current player's turn
-                RoundController currentPlayer = GetRoundFromGOList(i);
-                currentPlayer.ScanStages();
-            }
-        }
-    }
+    //public void FinishProcess()
+    //{
+    //    int alive = CheckAlive();
+    //    for (int i = 0; i < alive; i++)
+    //    {
+    //        if (playerList[i].Status == 1)
+    //        {
+    //            DiscardCard(playerList[i]);
+    //            // Continue current player's turn
+    //            RoundController currentPlayer = GetRoundFromGOList(i);
+    //            currentPlayer.ScanStages();
+    //        }
+    //    }
+    //}
 
-    public void AssignTarget(PlayerModel target, PlayerModel user)
+    public void AssignTarget(EnemyOnlineController target, PlayerOnlineModel user)
     {
         if (!target.isPickedAsTarget)
         {
@@ -281,7 +298,7 @@ public class FunctOnlineController : NetworkBehaviour
         }
     }
 
-    public void AssignTargetAuto(Cards cardUsed, PlayerModel user)
+    public void AssignTargetAuto(CardsOnline cardUsed, PlayerOnlineModel user)
     {
         if (cardUsed != null && user != null)
         {
@@ -292,12 +309,12 @@ public class FunctOnlineController : NetworkBehaviour
                 case "Heal":
                     if (processCase == 1)
                     {
-                        user.isPickTarget = DyingPlayer();
+                        //user.isPickTarget = DyingPlayer();
                     }
-                    else if (user.Stage == 3)
-                    {
-                        user.isPickTarget = user;
-                    }
+                    //else if (user.Stage.Value == 3)
+                    //{
+                    //    user.isPickTarget = user;
+                    //}
                     break;
 
 
@@ -317,7 +334,7 @@ public class FunctOnlineController : NetworkBehaviour
 
     #region Card Activations 
 
-    public void GetPickedCards(Cards deck, PlayerModel owner)
+    public void GetPickedCards(CardsOnline deck, PlayerOnlineModel owner)
     {
         if (owner.limitPick == 1)
         {
@@ -351,7 +368,7 @@ public class FunctOnlineController : NetworkBehaviour
         ButtonInteractability(owner);
     }
 
-    public void SetInteractability(PlayerModel currentPlayer)
+    public void SetInteractability(PlayerOnlineModel currentPlayer)
     {
         if (currentPlayer != null && currentPlayer.cardsInHand != null)
         {
@@ -360,7 +377,7 @@ public class FunctOnlineController : NetworkBehaviour
             if ((currentPlayer.AfterPickCard != null && currentPlayer.AfterPickCard.Count == limit && currentPlayer.limitPick != 1)
                 || (currentPlayer.AfterPick1Card != null && currentPlayer.limitPick == 1))
             {
-                foreach (Cards card in currentPlayer.cardsInHand)
+                foreach (CardsOnline card in currentPlayer.cardsInHand)
                 {
                     if (card.isPickCard == false)
                     {
@@ -370,7 +387,7 @@ public class FunctOnlineController : NetworkBehaviour
             }
             else
             {
-                foreach (Cards deck in currentPlayer.cardsInHand)
+                foreach (CardsOnline deck in currentPlayer.cardsInHand)
                 {
                     deck.isActive = true;
                 }
@@ -378,7 +395,7 @@ public class FunctOnlineController : NetworkBehaviour
         }
     }
 
-    public void ButtonInteractability(PlayerModel currentPlayer)
+    public void ButtonInteractability(PlayerOnlineModel currentPlayer)
     {
         if (currentPlayer != null)
         {
@@ -420,7 +437,7 @@ public class FunctOnlineController : NetworkBehaviour
     #region Clear for cards and player
 
 
-    public void CardClear(Cards deck, int index)
+    public void CardClear(CardsOnline deck, int index)
     {
         if (deck != null)
         {
@@ -430,7 +447,7 @@ public class FunctOnlineController : NetworkBehaviour
                     deck.isActive = false;
                     deck.isUsable = false;
                     deck.isPickCard = false;
-                    deck.isInHand = null;
+                    deck.ownerId = ulong.MaxValue;
                     deck.isProcessing = false;
                     break;
                 case 1: // Card is no longer picked
@@ -450,7 +467,7 @@ public class FunctOnlineController : NetworkBehaviour
         }
     }
 
-    public void CardClear(List<Cards> list, int index)
+    public void CardClear(List<CardsOnline> list, int index)
     {
         for (int i = 0; i < list.Count; i++)
         {
@@ -459,9 +476,9 @@ public class FunctOnlineController : NetworkBehaviour
         //list.Clear();
     }
 
-    public void CardClear(PlayerModel owner, String name, int index)
+    public void CardClear(PlayerOnlineModel owner, String name, int index)
     {
-        List<Cards> list = owner.cardsInHand;
+        List<CardsOnline> list = owner.cardsInHand;
         for (int i = 0; i < list.Count; i++)
         {
             if (string.Compare(list[i].Name, name) == 0)
@@ -472,7 +489,7 @@ public class FunctOnlineController : NetworkBehaviour
         //list.Clear();
     }
 
-    public void PlayerClear(PlayerModel player, int index)
+    public void PlayerClear(PlayerOnlineModel player, int index)
     {
         if (player != null)
         {
@@ -497,13 +514,21 @@ public class FunctOnlineController : NetworkBehaviour
 
     public void PlayerClear(int index)
     {
-        for (int i = 0; i < playerList.Count; i++)
+        for (int i = 0; i < enemyList.Count; i++)
         {
-            PlayerClear(playerList[i], index);
+            //PlayerClear(enemyList[i], index);
         }
     }
 
-    public void ClearCardAndTarget(PlayerModel currentPlayer)
+    public void EnemyClear()
+    {
+        foreach(var item in enemyList)
+        {
+            item.isPickable = false;
+        }
+    }
+
+    public void ClearCardAndTarget(PlayerOnlineModel currentPlayer)
     {
         CardClear(currentPlayer.AfterPickCard, 1);
         CardClear(currentPlayer.AfterPick1Card, 1);
@@ -511,7 +536,7 @@ public class FunctOnlineController : NetworkBehaviour
         currentPlayer.AfterPickCard.Clear();
         currentPlayer.AfterPick1Card = null;
 
-        PlayerClear(0);
+        //PlayerClear(0);
     }
 
 
@@ -520,101 +545,91 @@ public class FunctOnlineController : NetworkBehaviour
 
     #region Discard and Draw
 
-    public void MoveCard(List<Cards> target, List<Cards> source, Cards card)
+    [ServerRpc]
+    public void DrawCardServerRpc(ulong clientId, int amount)
     {
-        if (target != null && source != null && card != null)
-        {
-            target.Add(card);
-            source.Remove(card);
-        }
-    }
-
-    public void OpenFromDeck(PlayerModel player, int amount)
-    {
-        deckManager = GameObject.Find("DrawDeck").GetComponent<DeckManager>();
-        List<Cards> drawDeck = deckManager.drawDecks;
-
+        PlayerOnlineModel player = GetPlayerByClientId(clientId);
         if (player == null)
         {
-            Debug.LogError("Player is null in OpenFromDeck.");
+            Debug.LogError("Player not found for clientId: " + clientId);
             return;
         }
+
+
+        Debug.Log("Player : " + clientId + " draws " + amount);
+        for (int i = 0; i < amount; i++)
+        {
+            CardsOnline drawnCard = deckManager.DrawCardFromDeck();
+            if (drawnCard != null)
+            {
+                if (player.cardsInHand == null)
+                {
+                    Debug.LogWarning("cardsInHand is null for player with clientId: " + clientId);
+                    player.cardsInHand = new List<CardsOnline>();
+                }
+                Debug.Log("Found card " + drawnCard.Name);
+                player.cardsInHand.Add(drawnCard);
+                drawnCard.ownerId = clientId;
+            }
+        }
+
+        UpdateHandClientRpc(clientId);
+    }
+
+    [ClientRpc]
+    private void UpdateHandClientRpc(ulong clientId)
+    {
+        List<CardsOnline> updatedHand = GetPlayerByClientId(clientId).cardsInHand;
+        if (NetworkManager.Singleton.LocalClientId != clientId)
+        {
+            if(updatedHand != null)
+            {
+                foreach (EnemyOnlineController enemy in enemyList)
+                {
+                    enemy.UpdateCardCount(updatedHand.Count);
+                }
+            }
+        }
         else
         {
-            for (int i = 0; i < amount; i++)
+            PlayerOnlineModel player = GetPlayerByClientId(clientId);
+            if (player != null)
             {
-                Cards deck = drawDeck[0];
-                player.cardsInHand.Add(deck);
-                drawDeck.RemoveAt(0);
-                deck.isInHand = player;
+                player.cardsInHand = updatedHand;
+                playerController.viewHandCards();
             }
         }
     }
 
-    public void DrawFromDeck(PlayerModel player, int amount)
+    [ServerRpc]
+    public void DiscardCardServerRpc(ulong clientId)
     {
-        deckManager = GameObject.Find("DrawDeck").GetComponent<DeckManager>();
-
-        if (deckManager != null && deckManager.drawDecks != null)
+        PlayerOnlineModel player = GetPlayerByClientId(clientId);
+        if (player == null)
         {
-            List<Cards> drawDeck = deckManager.drawDecks;
-            //List<Deck> source;
-            if (amount < drawDeck.Count && player.cardsInHand != null)
-            {
-                OpenFromDeck(player, amount);
-            }
-            else
-            {
-                Debug.Log("Reset drawDeck before drawing");
-                int tempCount = amount - drawDeck.Count;
-                OpenFromDeck(player, drawDeck.Count);
-
-                ResetDeck();
-
-                OpenFromDeck(player, tempCount);
-            }
+            Debug.LogError("Player not found for clientId: " + clientId);
+            return;
         }
-        else
-        {
-            Debug.LogError("DeckManager or drawDeck is null or empty!");
-        }
-    }
 
-    public void DiscardCard(PlayerModel player)
-    {
-        DeckManager deckManager = GameObject.Find("DrawDeck").GetComponent<DeckManager>();
-
-        List<Cards> discardDeck = deckManager.discardDecks;
-
-        List<Cards> handCards = player.cardsInHand;
+        List<CardsOnline> handCards = player.cardsInHand;
         for (int i = handCards.Count - 1; i >= 0; i--)
         {
-            Cards deck = handCards[i];
+            CardsOnline deck = handCards[i];
             if (player.AfterPickCard.Contains(deck))
             {
-                MoveCard(discardDeck, player.cardsInHand, deck);
+                deckManager.DiscardCard(deck);
                 player.AfterPickCard.Remove(deck);
                 CardClear(deck, 0);
             }
             if (deck == player.AfterPick1Card)
             {
-                MoveCard(discardDeck, player.cardsInHand, deck);
+                deckManager.DiscardCard(deck);
                 player.AfterPick1Card = null;
                 CardClear(deck, 0);
             }
         }
 
-        if (player.Stage == 4)
-        {
-            GetRoundFromGOList(playerIndex).ProceedToNextStage();
-            player.isDiscard = false;
-        }
-    }
-
-    public void ResetDeck()
-    {
-        deckManager.RefillDeck();
-        CardClear(deckManager.drawDecks, 0);
+        UpdateHandClientRpc(clientId);
     }
 
     #endregion
@@ -626,14 +641,14 @@ public class FunctOnlineController : NetworkBehaviour
     {
         bool check = true;
 
-        if (cards != null)
-        {
-            foreach (Cards deck in cards)
-            {
-                if (deck.name == cardToCheck.name)
-                    check = false;
-            }
-        }
+        //if (cards != null)
+        //{
+        //    foreach (Cards deck in cards)
+        //    {
+        //        if (deck.name == cardToCheck.name)
+        //            check = false;
+        //    }
+        //}
 
         return check;
     }
@@ -659,11 +674,11 @@ public class FunctOnlineController : NetworkBehaviour
     #region Update States
 
 
-    public void CardUpdate(Cards deck)
+    public void CardUpdate(CardsOnline deck)
     {
         if (deck != null)
         {
-            PlayerModel owner = deck.isInHand;
+            PlayerOnlineModel owner = GetPlayerByClientId(deck.ownerId);
 
             if (deck.isPickCard == false && deck.isActive == true)
             {
@@ -677,16 +692,16 @@ public class FunctOnlineController : NetworkBehaviour
                     }
                     else
                     {
-                        AfterPickCard(deck, owner);
+                        AfterPickCard();
                     }
                 }
             }
             else
             {
                 deck.isPickCard = false;
-                if (!deck.isInHand.isRespond || !deck.isInHand.isDiscard)
+                if (!GetPlayerByClientId(deck.ownerId).isRespond || !GetPlayerByClientId(deck.ownerId).isDiscard)
                 {
-                    PlayerClear(0);
+                    EnemyClear();
                 }
             }
 
@@ -694,49 +709,35 @@ public class FunctOnlineController : NetworkBehaviour
         }
     }
 
-    public void PlayerUpdate(PlayerModel target)
+    public void PlayerUpdate(EnemyOnlineController target)
     {
-        if (target != null)
-        {
-            PlayerModel user = null;
+        Debug.Log(playerController.currentPlayer + " is targetting " + target);
 
-            foreach (PlayerModel player in playerList)
-            {
-                if (player != target)
-                {
-                    user = player;
-                    break;
-                }
-            }
-
-            Debug.Log(user + " is targetting " + target);
-            if (user != null)
-            {
-                AssignTarget(target, user);
-            }
-        }
+        AssignTarget(target, playerController.currentPlayer);
     }
     #endregion
 
 
     #region Game Initialize
 
-    public void MatchInitialize()
+    [ServerRpc(RequireOwnership = false)]
+    public void MatchInitializeServerRpc()
     {
-        setPlayerGO();
-        getPlayerQueue();
+        SetPlayerGOClientRpc();
+
+        Debug.Log("Finish initializing");
     }
 
     public int CheckAlive()
     {
         int playerAlive = 0;
-        foreach (PlayerModel player in playerList)
-        {
-            if (player.Status == 1)
-                playerAlive++;
-        }
+        //foreach (PlayerModel player in playerList)
+        //{
+        //    if (player.Status == 1)
+        //        playerAlive++;
+        //}
 
-        Debug.Log("There are " + playerAlive + " player alive");
+        //Debug.Log("There are " + playerAlive + " player alive");
 
         return playerAlive;
     }
@@ -752,16 +753,31 @@ public class FunctOnlineController : NetworkBehaviour
         }
     }
 
-    public void GameStart()
+    [ServerRpc(RequireOwnership = false)]
+    public void GameStartServerRpc()
     {
-        GameObject EndGame = GameObject.Find("EndGame");
-        EndGame.SetActive(false);
+        GetPlayerQueueClientRpc();
+        Debug.Log("Game starting");
+        DisableGameEndClientRpc();
 
-        foreach (PlayerController player in controllerList)
+        foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            player.PlayerDraw(4);
+            Debug.Log($"Connected client: {clientId}");
+            DrawCardServerRpc(clientId, 4);
         }
-        StartRoundForPlayer();
+
+        //StartRoundForPlayer();
+    }
+
+    [ClientRpc]
+    private void DisableGameEndClientRpc()
+    {
+        Debug.Log($"DisableGameEndClientRpc called on Client {NetworkManager.Singleton.LocalClientId}");
+        GameObject EndGame = GameObject.Find("EndGame");
+        if (EndGame != null)
+        {
+            EndGame.SetActive(false);
+        }
     }
 
     public void NextPlayerTurn()
@@ -785,46 +801,24 @@ public class FunctOnlineController : NetworkBehaviour
         roundManager.RoundStart();
     }
 
-    private void getPlayerQueue()
+    [ClientRpc]
+    private void GetPlayerQueueClientRpc()
     {
-        controllerList.Add(GetControllerFromGO("Player"));
-        playerList.Add(GetPlayerFromGO("Player"));
-
-        for (int i = 0; i < roomSize - 1; i++)
-        {
-            string enemyName = "Enemy" + roomSize + i;
-
-            controllerList.Add(GetControllerFromGO(enemyName));
-            playerList.Add(GetPlayerFromGO(enemyName));
-            playerList[i].Status = 1;
-        }
-
         Debug.Log("Create game with " + roomSize + " players");
+
+        var connectedClients = NetworkManager.Singleton.ConnectedClientsIds;
+        foreach (var client in connectedClients)
+        {
+            Debug.Log($"Setting Client {client}");
+            MapPlayerToClientIdClientRpc(client);
+        }
     }
 
-    private PlayerModel GetPlayerFromGO(string playerName)
+    [ClientRpc]
+    private void SetPlayerGOClientRpc()
     {
-        PlayerModel player = GameObject.Find(playerName).GetComponent<PlayerModel>();
-
-        return player;
-    }
-
-    private PlayerController GetControllerFromGO(string playerName)
-    {
-        PlayerController player = GameObject.Find(playerName).GetComponent<PlayerController>();
-
-        return player;
-    }
-
-    private RoundController GetRoundFromGOList(int index)
-    {
-        RoundController player = GOList[index].GetComponent<RoundController>();
-
-        return player;
-    }
-
-    private void setPlayerGO()
-    {
+        deckManager = GameObject.Find("DrawDeck").GetComponent<DeckOnlineManager>();
+        playerController = GameObject.Find("Player").GetComponent<PlayerOnlineController>();
         GameObject currentPlayerGO = GameObject.Find("Player");
         SetPlayerComponent(currentPlayerGO);
 
@@ -832,33 +826,111 @@ public class FunctOnlineController : NetworkBehaviour
         {
             string enemyName = "Enemy20";
             GameObject enemyGO = GameObject.Find(enemyName);
+            EnemyOnlineController enemy = enemyGO.GetComponent<EnemyOnlineController>();
 
-            SetPlayerComponent(enemyGO);
+            GOList.Add(enemyGO);
+            enemyList.Add(enemy);
         }
-        //for (int i = 0; i < roomSize - 1; i++)
-        //{
-        //}
     }
 
     private void SetPlayerComponent(GameObject currentPlayerGO)
     {
-        PlayerModel player = currentPlayerGO.GetComponent<PlayerModel>();
-        PlayerController playerController = currentPlayerGO.GetComponent<PlayerController>();
-        RoundController roundController = currentPlayerGO.GetComponent<RoundController>();
+        PlayerOnlineModel player = currentPlayerGO.GetComponent<PlayerOnlineModel>();
+        PlayerOnlineController playerController = currentPlayerGO.GetComponent<PlayerOnlineController>();
+        RoundOnlineController roundController = currentPlayerGO.GetComponent<RoundOnlineController>();
 
         GOList.Add(currentPlayerGO);
 
         if (currentPlayerGO != null)
         {
             if (playerController == null)
-                currentPlayerGO.AddComponent<PlayerController>();
+                currentPlayerGO.AddComponent<PlayerOnlineController>();
             if (player == null)
-                currentPlayerGO.AddComponent<PlayerModel>();
+                currentPlayerGO.AddComponent<PlayerOnlineModel>();
             if (roundController == null)
-                currentPlayerGO.AddComponent<RoundController>();
+                currentPlayerGO.AddComponent<RoundOnlineController>();
+        }
+
+        Debug.Log("Components added");
+    }
+
+
+    #endregion
+
+
+    #region Get and Set List
+
+    public PlayerOnlineModel GetPlayerByClientId(ulong clientId)
+    {
+        if (playerList.TryGetValue(clientId, out PlayerOnlineModel player))
+        {
+            return player;
+        }
+        else
+        {
+            Debug.LogError($"Player with ClientId {clientId} not found!");
+            return null;
         }
     }
 
+    [ClientRpc]
+    public void MapPlayerToClientIdClientRpc(ulong clientId)
+    {
+        try
+        {
+            Debug.Log($"MapPlayerToClientId called on Client {NetworkManager.Singleton.LocalClientId}" +
+                $"with playerId {LobbyInstance.Instance.PlayerLobbyID}");
+            GameObject playerGameObject = GameObject.Find("Player");
+            if (playerGameObject == null)
+            {
+                Debug.LogError($"Cant find GO Player for clientId: {clientId}");
+                return;
+            }
+
+            var playerModel = playerGameObject.GetComponent<PlayerOnlineModel>();
+            if (playerModel == null)
+            {
+                Debug.LogError($"GO Player {playerGameObject.name} does not have PlayerOnlineModel!");
+                return;
+            }
+            else
+            {
+                Debug.Log("Found player");
+                playerModel.InitializePlayer(LobbyInstance.Instance.PlayerName, "Anivia");
+            }
+
+            if (!playerGameObject.TryGetComponent<NetworkObject>(out var networkObject) || !networkObject.IsSpawned)
+            {
+                Debug.LogWarning($"Player GameObject for clientId {clientId} is not ready yet!");
+            }
+
+            if (!playerList.ContainsKey(clientId))
+            {
+                playerList[clientId] = playerModel;
+                Debug.Log($"Player {playerModel.nameAndFaction.Value.Name} mapped for ClientID {clientId}");
+            }
+            else
+            {
+                Debug.LogWarning($"ClientId {clientId} already existed!");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+    [ClientRpc]
+    private void UpdatePlayerDataClientRpc(ulong clientId, NameAndFaction nameAndFaction, int hp, int maxHp)
+    {
+        var player = GetPlayerByClientId(clientId);
+        if (player != null)
+        {
+            player.nameAndFaction.Value = nameAndFaction;
+            player.HP.Value = hp;
+            player.HPMax.Value = maxHp;
+        }
+    }
 
     #endregion
 

@@ -1,33 +1,55 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
-   FunctionController functionController;
+    FunctionController functionController;
     FunctOnlineController functOnlineController;
     public Button BtnEnemyAction;
 
-    public UnityEngine.UI.Button btnStartGame;
+    public Button btnStartGame;
+    public Button btnInit;
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
-        btnStartGame.onClick.AddListener(GameStart);
 
         if (!RoomSizeInstance.Instance.online)
         {
+            btnStartGame.gameObject.SetActive(true);
+            btnStartGame.onClick.AddListener(GameStart);
+
             BtnEnemyAction.gameObject.SetActive(true);
-            functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
+            functionController = GetComponent<FunctionController>();
 
             //functionController.roomSize = RoomSizeInstance.Instance.roomSize;
             functionController.MatchInitialize();
-    }
+        }
         else
         {
+            functOnlineController = GetComponent<FunctOnlineController>();
+            if (IsHost)
+            {
+                btnStartGame.gameObject.SetActive(true);
+                btnStartGame.onClick.AddListener(GameStart);
+
+                btnInit.gameObject.SetActive(true);
+                btnInit.onClick.AddListener(GameInit);
+            }
+
             BtnEnemyAction.gameObject.SetActive(false);
-            functOnlineController = GameObject.Find("GameManager").GetComponent<FunctOnlineController>();
 
             functOnlineController.roomSize = RoomSizeInstance.Instance.roomSize;
-            functOnlineController.MatchInitialize();
+
+
+            if (IsServer)
+            {
+                Debug.Log("FunctOnlineController spawned on server.");
+            }
+            else if (IsClient)
+            {
+                Debug.Log("FunctOnlineController spawned on client.");
+            }
         }
     }
 
@@ -42,8 +64,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            functOnlineController.GameStart();
-            functOnlineController.ResetDeck();
+            functOnlineController.GameStartServerRpc();
+            //functOnlineController.ResetDeck();
         }
+    }
+
+    private void GameInit()
+    {
+        btnInit.gameObject.SetActive(false);
+
+        functOnlineController.MatchInitializeServerRpc();
     }
 }

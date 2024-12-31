@@ -1,24 +1,21 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
 
-public class DeckManager : MonoBehaviour
+public class DeckOnlineManager : NetworkBehaviour
 {
-    public List<Cards> drawDecks = new List<Cards>();
-    public List<Cards> discardDecks = new List<Cards>();
+    public List<CardsOnline> drawDecks = new List<CardsOnline>();
+    public List<CardsOnline> discardDecks = new List<CardsOnline>();
     public int countDraw;
     public int countDiscard;
-
-    FunctionController functionController;
 
     #region NetworkBehaviour
 
     // Start is called before the first frame update
     void Start()
     {
-        functionController = GameObject.Find("GameManager").GetComponent<FunctionController>();
 
         // Call the method for randomize deck
         LoadRandomDecks();
@@ -29,6 +26,42 @@ public class DeckManager : MonoBehaviour
     {
         countDraw = drawDecks.Count;
         countDiscard = discardDecks.Count;
+    }
+
+    #endregion
+
+
+    #region Draw and Discard
+
+    public CardsOnline DrawCardFromDeck()
+    {
+        if (drawDecks.Count == 0)
+        {
+            RefillDeck(); 
+        }
+        if (drawDecks.Count > 0)
+        {
+            CardsOnline drawnCard = drawDecks[0];
+            drawDecks.RemoveAt(0);
+            return drawnCard;
+        }
+        else
+        {
+            Debug.LogError("Deck is empty, cannot draw a card!");
+            return null;
+        }
+    }
+
+    public void DiscardCard(CardsOnline card)
+    {
+        if (card != null)
+        {
+            discardDecks.Add(card);
+        }
+        else
+        {
+            Debug.LogError("Cannot discard a null card!");
+        }
     }
 
     #endregion
@@ -45,20 +78,20 @@ public class DeckManager : MonoBehaviour
             DeckData deckData = JsonUtility.FromJson<DeckData>(json);
 
             // A temporary deck to save all loaded cards
-            List<Cards> allDecks = new List<Cards>();
+            List<CardsOnline> allDecks = new List<CardsOnline>();
 
             if (deckData != null && deckData.cards.Count > 0)
             {
                 foreach (CardData cardData in deckData.cards)
                 {
-                    Cards card = new Cards(
-                        cardData.Name, 
-                        cardData.Description, 
-                        cardData.Number, 
+                    CardsOnline card = new CardsOnline(
+                        cardData.Name,
+                        cardData.Description,
+                        cardData.Number,
                         cardData.Element,
                         cardData.Color,
                         cardData.Damage,
-                        cardData.Targets );
+                        cardData.Targets);
 
                     allDecks.Add(card);
                 }

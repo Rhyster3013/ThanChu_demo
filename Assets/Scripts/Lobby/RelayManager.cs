@@ -45,11 +45,11 @@ public class RelayManager : MonoBehaviour
             // Create Lobby
             CreateLobbyOptions playerName = new CreateLobbyOptions()
             {
-                Player = GetPlayer("Rhyster")
+                Player = GetPlayer("Host Player")
             };
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, playerName);
             LobbyInstance.Instance.LobbyID = lobby.Id;
-            LobbyInstance.Instance.PlayerName = "Rhyster";
+            LobbyInstance.Instance.PlayerName = "Host Player";
 
             string message = ("Lobby ID: " + lobby.Id + ", JoinCode: " + lobby.LobbyCode);
             Debug.Log(message);
@@ -64,9 +64,9 @@ public class RelayManager : MonoBehaviour
             await LobbyService.Instance.UpdateLobbyAsync(lobby.Id, new UpdateLobbyOptions
             {
                 Data = new Dictionary<string, DataObject>
-            {
+                {
                 { "RelayJoinCode", new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode) }
-            }
+                }
             });
 
             // Format Unity Transport and start Host
@@ -134,7 +134,7 @@ public class RelayManager : MonoBehaviour
 
                     // Start Netcode Client
                     NetworkManager.Singleton.StartClient();
-                StartServerOrHost();
+                    StartServerOrHost();
 
                 if (!NetworkManager.Singleton.IsClient)
                 {
